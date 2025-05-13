@@ -5,9 +5,9 @@ const session = require('express-session');
 const path = require('path');
 const app = express();
 
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-//app.use(express.static('public'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const db = require('./db');
@@ -19,27 +19,27 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// Login route
+// View engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+
+// Routes
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   db.query('SELECT * FROM user WHERE Email = ? AND Password = ?', [email, password], (err, results) => {
     if (err) return res.status(500).json({ message: 'Database error' });
-    if (results.length === 0) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
+    if (results.length === 0) return res.status(401).json({ message: 'Invalid credentials' });
 
-    const user = results[0];
+    // Set session
     req.session.user = {
-      firstName: user.First_Name,
-      lastName: user.Last_Name,
-      balance: user.Balance,
-      email: user.Email
+      name: `${results[0].First_Name} ${results[0].Last_Name}`,
+      balance: results[0].Balance
     };
 
-    res.json({ message: 'Login successful', redirect: '/home.html' });
+    res.json({ message: 'Login successful', redirect: '/home' });
   });
 });
-
 // Session user info
 app.get('/session-user', (req, res) => {
   if (req.session.user) {
@@ -47,6 +47,20 @@ app.get('/session-user', (req, res) => {
   } else {
     res.status(401).json({ message: 'Not logged in' });
   }
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/');
+});
+
+app.get('/home', (req, res) => {
+  if (!req.session.user) return res.redirect('/');
+
+  res.render('home', {
+    name: req.session.user.name,
+    balance: req.session.user.balance
+  });
 });
 
 // Get all users (for display)

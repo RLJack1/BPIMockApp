@@ -14,27 +14,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const result = await response.json();
-    if (response.ok) {
+    document.getElementById('response').textContent = result.message;
+
+    if (response.ok && result.redirect) {
       window.location.href = result.redirect;
-    } else {
-      document.getElementById('response').textContent = result.message;
     }
   });
 });
   
-  async function loadUsers() {
-    const res = await fetch('/users');
-    const users = await res.json();
-    const tbody = document.querySelector('#usersTable tbody');
-  
-    users.forEach(user => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${user.Account_Number}</td>
-        <td>${user.First_Name} ${user.Last_Name}</td>
-        <td>${user.Email}</td>
-        <td>₱${parseFloat(user.Balance).toFixed(2)}</td>
-      `;
-      tbody.appendChild(row);
-    });
-  }
+async function loadUsers() {
+  const res = await fetch('/users');
+  const users = await res.json();
+  const tbody = document.querySelector('#usersTable tbody');
+
+  users.forEach(user => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${user.Account_Number}</td>
+      <td>${user.First_Name} ${user.Last_Name}</td>
+      <td>${user.Email}</td>
+      <td>$${parseFloat(user.Balance).toFixed(2)}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
