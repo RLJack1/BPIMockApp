@@ -33,7 +33,7 @@ async function loadUsers() {
       <td>${user.Account_Number}</td>
       <td>${user.First_Name} ${user.Last_Name}</td>
       <td>${user.Email}</td>
-      <td>$${parseFloat(user.Balance).toFixed(2)}</td>
+      <td>₱${parseFloat(user.Balance).toFixed(2)}</td>
     `;
     tbody.appendChild(row);
   });
