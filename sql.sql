@@ -35,3 +35,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`user_payment_junction` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+INSERT INTO `user` (`Account_Number`, `First_Name`, `Last_Name`, `Birth_Date`, `Email`, `Password`, `Balance`) VALUES
+	('123456', 'Jack', 'Master', '2012-12-12', 'jackmaster@email.com', 'jackmaster', '10000'),
+	('234567', 'Ivar', 'Ragnarsson', '2011-11-11', 'bonesless@viking.com', 'vikings', '11000'),
+	('345678', 'Caitlyn', 'Kiramman', '2010-10-10', 'meandviforever@piltover.com', 'boomheadshot', '12000');
