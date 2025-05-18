@@ -33,13 +33,15 @@ app.post('/login', (req, res) => {
 
     // Set session
     req.session.user = {
+      accountNumber: results[0].Account_Number, // added account number to session
       name: `${results[0].First_Name} ${results[0].Last_Name}`,
-      balance: results[0].Balance
+      balance: parseFloat(results[0].Balance)
     };
 
     res.json({ message: 'Login successful', redirect: '/home' });
   });
 });
+
 // Session user info
 app.get('/session-user', (req, res) => {
   if (req.session.user) {
@@ -60,6 +62,39 @@ app.get('/home', (req, res) => {
   res.render('home', {
     name: req.session.user.name,
     balance: req.session.user.balance
+  });
+});
+
+// route to get transactions and render transaction page
+app.get('/transactions', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const accountNumber = req.session.user.accountNumber;
+  const sql = `
+    SELECT 
+      t.Transaction_ID,
+      b.Biller_Name,
+      t.Transaction_Date,
+      t.Transaction_Time,
+      t.Amount,
+      pm.Payment_Method,
+      t.Reference_Number
+    FROM transaction t
+    JOIN biller b ON t.Biller_ID = b.Biller_ID
+    JOIN payment_methods pm ON t.Payment_Method_ID = pm.Payment_ID
+    WHERE t.Account_Number = ?
+    ORDER BY t.Transaction_Date DESC, t.Transaction_Time DESC
+  `;
+
+  db.query(sql, [accountNumber], (err, results) => {
+    if (err) {
+      console.error('Transaction fetch error:', err);
+      return res.sendStatus(500);
+    }
+
+    res.render('transactions', { name: req.session.user.name, transactions: results });
   });
 });
 

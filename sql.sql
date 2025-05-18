@@ -33,14 +33,14 @@ CREATE TABLE IF NOT EXISTS `mydb`.`user_payment_junction` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
     
-    CREATE TABLE IF NOT EXISTS `mydb`.`biller` (
-  `Biller_ID` INT NOT NULL,
+CREATE TABLE IF NOT EXISTS `mydb`.`biller` (
+  `Biller_ID` INT NOT NULL AUTO_INCREMENT,
   `Biller_Name` VARCHAR(45) NOT NULL,
   `Biller_Category` VARCHAR(45) NULL,
   PRIMARY KEY (`Biller_ID`),
   UNIQUE INDEX `Biller_Name_UNIQUE` (`Biller_Name` ASC) VISIBLE);
     
-    CREATE TABLE IF NOT EXISTS `mydb`.`transaction` (
+ CREATE TABLE IF NOT EXISTS `mydb`.`transaction` (
   `Transaction_ID` INT NOT NULL AUTO_INCREMENT,
   `Account_Number` INT(6) NOT NULL,
   `Biller_ID` INT NOT NULL,
@@ -74,3 +74,21 @@ INSERT INTO `user` (`Account_Number`, `First_Name`, `Last_Name`, `Birth_Date`, `
 	('123456', 'Jack', 'Master', '2012-12-12', 'jackmaster@email.com', 'jackmaster', '10000'),
 	('234567', 'Ivar', 'Ragnarsson', '2011-11-11', 'bonesless@viking.com', 'vikings', '11000'),
 	('345678', 'Caitlyn', 'Kiramman', '2010-10-10', 'meandviforever@piltover.com', 'boomheadshot', '12000');
+    
+-- Insert billers
+INSERT INTO `mydb`.`biller` (`Biller_Name`, `Biller_Category`) 
+VALUES 
+('Jeralco', 'Utilities'),
+('Namila Water', 'Utilities'),
+('Konverge ICT', 'Telecommunications');
+
+-- Insert payment method
+INSERT INTO `mydb`.`payment_methods` (`Payment_ID`, `Payment_Method`)
+VALUES (1, 'Debit Card');
+
+-- Sample transactions (assuming account number 123456 exists)
+INSERT INTO `mydb`.`transaction` (`Account_Number`, `Biller_ID`, `Transaction_Date`, `Transaction_Time`, `Amount`, `Payment_Method_ID`)
+VALUES 
+(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Jeralco'), '2025-05-14', '16:00:00', -14000.00, 1),
+(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Namila Water'), '2025-05-14', '17:00:00', -4000.00, 1),
+(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Konverge ICT'), '2025-05-13', '14:00:00', -5000.00, 1);
