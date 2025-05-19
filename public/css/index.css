@@ -1,75 +1,67 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f7d69c;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    margin: 0;
-  }
-  
-  h2 {
-    color: #333;
-    align-self: center;
-    margin-bottom: 20px;
-  }
-  
-  #loginForm {
-    background-color: white;
-    padding: 30px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  #loginForm input {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    font-size: 14px;
-  }
-  
-  #loginForm input:focus {
-    outline: none;
-    border-color: #aaa;
-  }
-  
-  #loginForm button {
-    background-color: #ff7b2f;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-  }
-  
-  #loginForm button:hover {
-    background-color: #45a049;
-  }
-  
-  #response {
-    margin-top: 20px;
-    color: #333;
-  }
-  
-  #usersTable {
-    margin-top: 30px;
-    width: 80%;
-    border-collapse: collapse;
-  }
-  
-  #usersTable th, #usersTable td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ddd;
-  }
-  
-  #usersTable th {
-    background-color: #f2f2f2;
-  }
+  font-family: Arial, sans-serif;
+  background-color: #ac2024;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#loginForm {
+  background-color: white;
+  padding: 30px 20px;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+h2 {
+  color: #BC942D;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: Helvetica, bold;
+}
+
+#loginForm img {
+  align-self: center;
+  margin-bottom: 20px;
+}
+
+#loginForm input {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #f50000;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+#loginForm button {
+  background-color: #BC942D;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#loginForm button:hover {
+  background-color: #45a049;
+}
+
+#response {
+  text-align: center;
+  margin-top: 10px;
+  color: #333;
+}

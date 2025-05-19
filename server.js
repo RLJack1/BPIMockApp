@@ -38,7 +38,7 @@ app.post('/login', (req, res) => {
       balance: parseFloat(results[0].Balance)
     };
 
-    res.json({ message: 'Login successful', redirect: '/home' });
+    res.json({ redirect: '/home' });
   });
 });
 
