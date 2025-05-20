@@ -4,18 +4,43 @@
   <meta charset="UTF-8">
   <title>Welcome</title>
   <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
   <div id="homeContainer">
     <h2>Welcome, <%= name %>!</h2>
-    <p>Your current balance is: <strong>₱<%= Number(balance).toFixed(2) %></strong></p>
+    <div class="wallet-section">
+      <h3>AVAILABLE BALANCE</h3>
+      <div class="balance-display">
+        <p>₱<%= Number(balance).toFixed(2) %></p>
+      </div>
+    </div>
+    
+    <div class="functions-grid">
+      <div class="grid-item">
+        <a href="/transactions" class="view-transactions">
+          <div class="grid-icon">
+            <!-- <i class="fas fa-list-ul"></i> -->
+             <img src="/img/transaction.png" width="35" height="35">
+          </div>
+          <span class="grid-label">Transactions</span>
+        </a>
+      </div>
+    
+      <div class="grid-item">
+        <a href="/paybill" class="pay-bill">
+          <div class="grid-icon">
+            <img src="/img/paybillicon.png" width="35" height="35">
+          </div>
+          <span class="grid-label">Bills</span>
+        </a>
+      </div>
 
-    <a href="/transactions">
-      <button>View Transactions</button>
-    </a>
-
+    </div>
+    
+    <!-- Logout button outside grid -->
     <a href="/logout">
-      <button>Logout</button>
+      <button class="logout-btn">Logout</button>
     </a>
   </div>
 </body>

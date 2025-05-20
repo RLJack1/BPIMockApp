@@ -1,48 +1,118 @@
-/* Full height and reset margin/padding */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  font-family: Helvetica, sans-serif;
+  
 }
 
-/* Center content and apply background */
 body {
-  font-family: Arial, sans-serif;
   background-color: #BC942D;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Container box styled similarly to loginForm */
 #homeContainer {
   background-color: white;
-  padding: 30px 20px;
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 500px;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   box-sizing: border-box;
-  text-align: center;
+  overflow: hidden;
 }
 
-/* Heading styling */
-#homeContainer h2 {
-  color: #ac2024;
+.wallet-section {
+  background-color: #ac2024;
+  color: white;
+  padding: 30px 20px;
+  text-align: left;
+  flex: 0 0 auto;
+}
+
+.wallet-section h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: normal;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.balance-display {
+  display: flex;
+  align-items: center;
   margin-bottom: 20px;
 }
 
-/* Balance text */
-#homeContainer p {
-  font-size: 18px;
-  margin-bottom: 30px;
+.balance-display p {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0;
 }
 
-/* Buttons */
+.balance-eye {
+  margin-left: auto;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.functions-grid {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  flex: 1;
+}
+
+.grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.grid-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  /* background-color: #f0f7ff; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.grid-icon svg {
+  width: 24px;
+  height: 24px;
+  color: #1a73e8;
+}
+
+.grid-label {
+  font-size: 12px;
+  color: #333;
+}
+
+.nav-tabs {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  padding: 0 20px;
+}
+
+.nav-tab {
+  padding: 15px 0;
+  margin-right: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #666;
+  position: relative;
+  cursor: pointer;
+}
+
 #homeContainer button {
   background-color: #ac2024;
   color: white;
@@ -52,13 +122,4 @@ body {
   border-radius: 3px;
   font-size: 16px;
   cursor: pointer;
-}
-
-#homeContainer button:hover {
-  background-color: #db2a30;
-}
-
-/* Link styling */
-#homeContainer a {
-  text-decoration: none;
 }
