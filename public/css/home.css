@@ -1,18 +1,21 @@
+/* Full height and reset margin/padding */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
+/* Center content and apply background */
 body {
   font-family: Arial, sans-serif;
-  background-color: #ac2024;
+  background-color: #BC942D;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-#loginForm {
+/* Container box styled similarly to loginForm */
+#homeContainer {
   background-color: white;
   padding: 30px 20px;
   border-radius: 20px 20px 0 0;
@@ -24,44 +27,38 @@ body {
   flex-direction: column;
   justify-content: center;
   box-sizing: border-box;
-}
-
-h2 {
-  color: #BC942D;
   text-align: center;
+}
+
+/* Heading styling */
+#homeContainer h2 {
+  color: #ac2024;
   margin-bottom: 20px;
-  font-family: Helvetica, bold;
 }
 
-#loginForm img {
-  align-self: center;
-  margin-bottom: 20px;
+/* Balance text */
+#homeContainer p {
+  font-size: 18px;
+  margin-bottom: 30px;
 }
 
-#loginForm input {
-  margin-bottom: 15px;
-  padding: 10px;
-  border: 1px solid #f50000;
-  border-radius: 3px;
-  font-size: 14px;
-}
-
-#loginForm button {
-  background-color: #BC942D;
+/* Buttons */
+#homeContainer button {
+  background-color: #ac2024;
   color: white;
-  padding: 10px;
+  padding: 10px 20px;
+  margin: 5px;
   border: none;
   border-radius: 3px;
-  cursor: pointer;
   font-size: 16px;
+  cursor: pointer;
 }
 
-#loginForm button:hover {
-  background-color: #e6b437;
+#homeContainer button:hover {
+  background-color: #db2a30;
 }
 
-#response {
-  text-align: center;
-  margin-top: 10px;
-  color: #333;
+/* Link styling */
+#homeContainer a {
+  text-decoration: none;
 }

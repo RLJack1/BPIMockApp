@@ -3,16 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <title>Welcome</title>
+  <link rel="stylesheet" href="/css/home.css">
 </head>
 <body>
-  <h2>Welcome, <%= name %>!</h2>
-  <p>Your current balance is: <strong>₱<%= Number(balance).toFixed(2) %></strong></p>
+  <div id="homeContainer">
+    <h2>Welcome, <%= name %>!</h2>
+    <p>Your current balance is: <strong>₱<%= Number(balance).toFixed(2) %></strong></p>
 
-  <!-- Button to lead to transactions page -->
-  <a href="/transactions">
-    <button>View Transactions</button>
-  </a>
+    <a href="/transactions">
+      <button>View Transactions</button>
+    </a>
 
-  <a href="/logout">Logout</a>
+    <a href="/logout">
+      <button>Logout</button>
+    </a>
+  </div>
 </body>
 </html>
