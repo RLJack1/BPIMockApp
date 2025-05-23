@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Bills</title>
+    <link rel="stylesheet" href="/css/paybill.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </head>
+    <body>
+    <div class="mobile-container">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+        <a href="/home" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1>Pay Bills</h1>
+        <div class="header-actions">
+            <i class="fas fa-search"></i>
+        </div>
+        </header>
+
+        <!-- Balance Section -->
+        <div class="balance-section">
+        <div class="balance-card">
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount">₱<%= Number(balance).toFixed(2) %></div>
+        </div>
+        </div>
+
+        <!-- Pending Bills Section -->
+        <section class="pending-bills-section">
+        <h2 class="section-header">
+            <i class="fas fa-clock"></i>
+            Pending Bills
+            <% if (pendingBills.length > 0) { %>
+            <span class="bill-count"><%= pendingBills.length %></span>
+            <% } %>
+        </h2>
+        
+        <% if (pendingBills.length === 0) { %>
+            <div class="no-pending-bills">
+            <i class="fas fa-check-circle"></i>
+            <p>No pending bills</p>
+            <small>You're all caught up!</small>
+            </div>
+        <% } else { %>
+            <div class="pending-bills-scroll">
+            <% pendingBills.forEach(bill => { %>
+                <div class="pending-bill-card">
+                <div class="bill-info">
+                    <div class="biller-name"><%= bill.Biller_Name %></div>
+                    <div class="bill-amount">₱<%= Number(bill.Bill_Amount).toFixed(2) %></div>
+                    <div class="due-date">
+                    Due: <%= bill.Due_Date.toISOString().split('T')[0] %>
+                    <% 
+                        const today = new Date();
+                        const dueDate = new Date(bill.Due_Date);
+                        const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    %>
+                    <span class="days-left <%= daysUntilDue <= 3 ? 'urgent' : '' %>">
+                        (<%= daysUntilDue > 0 ? daysUntilDue + ' days left' : 'Overdue' %>)
+                    </span>
+                    </div>
+                </div>
+                <button class="pay-now-btn" onclick="payBill(<%= bill.Bill_ID %>, '<%= bill.Biller_Name %>', <%= bill.Bill_Amount %>)">
+                    Pay Now
+                </button>
+                </div>
+            <% }) %>
+            </div>
+        <% } %>
+        </section>
+
+        <!-- Overdue Bills Alert -->
+        <% if (overdueBills.length > 0) { %>
+        <div class="overdue-alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>You have <%= overdueBills.length %> overdue bill<%= overdueBills.length > 1 ? 's' : '' %></span>
+            <button class="view-overdue-btn" onclick="showOverdueBills()">View</button>
+        </div>
+        <% } %>
+
+        <!-- Billers List Section -->
+        <section class="billers-section">
+        <h2 class="section-header">
+            <i class="fas fa-building"></i>
+            All Billers
+        </h2>
+        
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Search billers" id="billerSearch">
+            <i class="fas fa-times clear-search" id="clearSearch" style="display: none;"></i>
+        </div>
+
+        <div class="billers-list" id="billersList">
+            <% 
+            // Define category icons mapping
+            const categoryIcons = {
+                'Utilities': 'fas fa-bolt',
+                'Electric Utilities': 'fas fa-bolt',
+                'Water Utilities': 'fas fa-tint',
+                'Telecommunications': 'fas fa-wifi',
+                'Internet': 'fas fa-wifi',
+                'Other': 'fas fa-building'
+            };
+
+            // Define biller logo colors
+            const categoryColors = {
+                'Utilities': '',
+                'Electric Utilities': '',
+                'Water Utilities': 'water',
+                'Telecommunications': 'telecom',
+                'Internet': 'telecom',
+                'Other': 'other'
+            };
+            %>
+
+            <% Object.keys(billersByCategory).forEach(category => { %>
+                <div class="category-header">
+                    <i class="<%= categoryIcons[category] || 'fas fa-building' %>"></i>
+                    <%= category %>
+                </div>
+                
+                <% billersByCategory[category].forEach(biller => { %>
+                    <div class="biller-item" data-biller="<%= biller.Biller_Name.toLowerCase().replace(/\s+/g, '') %>">
+                        <div class="biller-logo <%= categoryColors[category] || '' %>">
+                            <i class="<%= categoryIcons[category] || 'fas fa-building' %>"></i>
+                        </div>
+                        <div class="biller-details">
+                            <div class="biller-name"><%= biller.Biller_Name.toUpperCase() %></div>
+                            <div class="biller-tags">
+                                <!-- Tags can be added here if needed -->
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                <% }) %>
+            <% }) %>
+        </div>
+        </section>
+    </div>
+
+    <!-- Overdue Bills Modal -->
+    <div id="overdueModal" class="modal" style="display: none;">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h3>Overdue Bills</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="overdue-bills-list">
+            <% overdueBills.forEach(bill => { %>
+            <div class="overdue-bill-item">
+                <div class="overdue-bill-info">
+                <div class="biller-name"><%= bill.Biller_Name %></div>
+                <div class="bill-amount urgent">₱<%= Number(bill.Bill_Amount).toFixed(2) %></div>
+                <div class="overdue-date">Due: <%= bill.Due_Date.toISOString().split('T')[0] %></div>
+                </div>
+                <button class="pay-urgent-btn" onclick="payBill(<%= bill.Bill_ID %>, '<%= bill.Biller_Name %>', <%= bill.Bill_Amount %>)">
+                Pay Now
+                </button>
+            </div>
+            <% }) %>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        function payBill(billId, billerName, amount) {
+        const userBalance = <%= balance %>;
+        
+        if (amount > userBalance) {
+            alert(`Insufficient balance! You need ₱${(amount - userBalance).toFixed(2)} more to pay this bill.`);
+            return;
+        }
+        
+        const confirmed = confirm(`Are you sure you want to pay ₱${amount.toFixed(2)} to ${billerName}?`);
+        
+        if (confirmed) {
+            alert(`Payment processing for ${billerName} will be implemented in the next phase.`);
+        }
+        }
+
+        function showOverdueBills() {
+        document.getElementById('overdueModal').style.display = 'block';
+        }
+
+        // Search functionality
+        document.getElementById('billerSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const billerItems = document.querySelectorAll('.biller-item');
+        const categoryHeaders = document.querySelectorAll('.category-header');
+        const clearBtn = document.getElementById('clearSearch');
+        
+        if (searchTerm) {
+            clearBtn.style.display = 'block';
+        } else {
+            clearBtn.style.display = 'none';
+        }
+        
+        // Hide all category headers first
+        categoryHeaders.forEach(header => {
+            header.style.display = 'none';
+        });
+        
+        // Track which categories have visible items
+        const visibleCategories = new Set();
+        
+        billerItems.forEach(item => {
+            const billerName = item.querySelector('.biller-name').textContent.toLowerCase();
+            if (billerName.includes(searchTerm)) {
+                item.style.display = 'flex';
+                // Find the category header that precedes this item
+                let prevElement = item.previousElementSibling;
+                while (prevElement && !prevElement.classList.contains('category-header')) {
+                    prevElement = prevElement.previousElementSibling;
+                }
+                if (prevElement && prevElement.classList.contains('category-header')) {
+                    visibleCategories.add(prevElement);
+                }
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Show category headers that have visible items
+        visibleCategories.forEach(header => {
+            header.style.display = 'flex';
+        });
+        
+        // If no search term, show all
+        if (!searchTerm) {
+            categoryHeaders.forEach(header => {
+                header.style.display = 'flex';
+            });
+        }
+        });
+
+        document.getElementById('clearSearch').addEventListener('click', function() {
+        document.getElementById('billerSearch').value = '';
+        document.querySelectorAll('.biller-item').forEach(item => {
+            item.style.display = 'flex';
+        });
+        document.querySelectorAll('.category-header').forEach(header => {
+            header.style.display = 'flex';
+        });
+        this.style.display = 'none';
+        });
+
+        // Modal close functionality
+        document.querySelector('.close-modal').addEventListener('click', function() {
+        document.getElementById('overdueModal').style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+        const modal = document.getElementById('overdueModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+        });
+
+        // Biller item click handlers
+        document.querySelectorAll('.biller-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const billerName = this.querySelector('.biller-name').textContent;
+            alert(`${billerName} payment form will be implemented in the next phase.`);
+        });
+        });
+    </script>
+    </body>
+</html>

@@ -97,6 +97,80 @@ app.get('/transactions', (req, res) => {
   });
 });
 
+// Route to display bills/paybill page
+app.get('/paybill', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const accountNumber = req.session.user.accountNumber;
+  
+  // Query for bills
+  const billsQuery = `
+    SELECT 
+      bills.Bill_ID,
+      bills.Bill_Amount,
+      bills.Due_Date,
+      bills.Bill_Status,
+      bills.Bill_Reference,
+      biller.Biller_Name,
+      biller.Biller_Category
+    FROM bills
+    JOIN biller ON bills.Biller_ID = biller.Biller_ID
+    WHERE bills.Account_Number = ?
+    ORDER BY bills.Due_Date ASC
+  `;
+
+  // Query for all billers
+  const billersQuery = `
+    SELECT 
+      Biller_ID,
+      Biller_Name,
+      Biller_Category
+    FROM biller
+    ORDER BY Biller_Category, Biller_Name
+  `;
+
+  // Execute both queries
+  db.query(billsQuery, [accountNumber], (err, billsResults) => {
+    if (err) {
+      console.error('Bills fetch error:', err);
+      return res.sendStatus(500);
+    }
+
+    db.query(billersQuery, (err, billersResults) => {
+      if (err) {
+        console.error('Billers fetch error:', err);
+        return res.sendStatus(500);
+      }
+
+      // Separate bills by status
+      const pendingBills = billsResults.filter(bill => bill.Bill_Status === 'Pending');
+      const paidBills = billsResults.filter(bill => bill.Bill_Status === 'Paid');
+      const overdueBills = billsResults.filter(bill => bill.Bill_Status === 'Overdue');
+
+      // Group billers by category
+      const billersByCategory = {};
+      billersResults.forEach(biller => {
+        const category = biller.Biller_Category || 'Other';
+        if (!billersByCategory[category]) {
+          billersByCategory[category] = [];
+        }
+        billersByCategory[category].push(biller);
+      });
+
+      res.render('paybill', { 
+        name: req.session.user.name, 
+        balance: req.session.user.balance,
+        pendingBills: pendingBills,
+        paidBills: paidBills,
+        overdueBills: overdueBills,
+        billersByCategory: billersByCategory
+      });
+    });
+  });
+});
+
 // Get all users (for display)
 app.get('/users', (req, res) => {
     db.query('SELECT Account_Number, First_Name, Last_Name, Email, Balance FROM user', (err, results) => {

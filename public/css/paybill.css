@@ -1,0 +1,493 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #BC942D;
+    color: #333;
+    line-height: 1.4;
+    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
+  }
+  
+  .mobile-container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    min-height: 100vh;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Mobile Header */
+  .mobile-header {
+    background: #ac2024;
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .back-btn {
+    color: white;
+    font-size: 20px;
+    text-decoration: none;
+    padding: 8px;
+    margin-left: -8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+  
+  .back-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .mobile-header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    flex: 1;
+    text-align: center;
+    margin: 0 20px;
+  }
+  
+  .header-actions {
+    font-size: 20px;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .header-actions:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Balance Section */
+  .balance-section {
+    padding: 20px;
+    background: linear-gradient(135deg, #e6e6e6 0%, #e6e6e6 100%);
+  }
+  
+  .balance-card {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .balance-label {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  
+  .balance-amount {
+    color: #ac2024;
+    font-size: 28px;
+    font-weight: 700;
+  }
+  
+  /* Pending Bills Section */
+  .pending-bills-section {
+    padding: 20px;
+    background: white;
+  }
+  
+  .section-header {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+  
+  .section-header i {
+    color: #ac2024;
+  }
+  
+  .bill-count {
+    background: #ac2024;
+    color: white;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: auto;
+  }
+  
+  .no-pending-bills {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+  }
+  
+  .no-pending-bills i {
+    font-size: 48px;
+    color: #4caf50;
+    margin-bottom: 16px;
+  }
+  
+  .no-pending-bills p {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  
+  .no-pending-bills small {
+    color: #999;
+  }
+  
+  .pending-bills-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .pending-bill-card {
+    background: #f8f9ff;
+    border: 1px solid #e3f2fd;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .bill-info {
+    flex: 1;
+  }
+  
+  .biller-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  
+  .bill-amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ac2024;
+    margin-bottom: 4px;
+  }
+  
+  .due-date {
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .days-left {
+    font-weight: 500;
+  }
+  
+  .days-left.urgent {
+    color: #f44336;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  .pay-now-btn {
+    background: #ac2024;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .pay-now-btn:hover {
+    background: #c5262b;
+    transform: translateY(-1px);
+  }
+  
+  /* Overdue Alert */
+  .overdue-alert {
+    background: #ffebee;
+    border: 1px solid #ffcdd2;
+    margin: 0 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .overdue-alert i {
+    color: #f44336;
+    font-size: 18px;
+  }
+  
+  .overdue-alert span {
+    flex: 1;
+    color: #c62828;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .view-overdue-btn {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  /* Billers Section */
+  .billers-section {
+    background: white;
+    border-top: 8px solid #f5f7fa;
+    padding: 20px;
+  }
+  
+  .search-container {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 16px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 12px 16px 12px 48px;
+    border: 1px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 14px;
+    background: #f8f9fa;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #ac2024;
+    background: white;
+  }
+  
+  .clear-search {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .category-header {
+    background: #f5f7fa;
+    padding: 12px 16px;
+    margin: 16px -20px 0;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .category-header:first-of-type {
+    margin-top: 0;
+  }
+  
+  .category-header i {
+    color: #ac2024;
+  }
+  
+  .biller-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .biller-item:hover {
+    background-color: #f8f9ff;
+  }
+  
+  .biller-item:last-child {
+    border-bottom: none;
+  }
+  
+  .biller-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #1976d2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    margin-right: 16px;
+  }
+  
+  .biller-logo.water {
+    background: #ac2024;
+  }
+  
+  .biller-logo.telecom {
+    background: #9c27b0;
+  }
+  
+  .biller-details {
+    flex: 1;
+  }
+  
+  .biller-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  
+  .biller-tags {
+    display: flex;
+    gap: 6px;
+  }
+  
+  .tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .biller-item > .fas.fa-chevron-right {
+    color: #ccc;
+    font-size: 14px;
+  }
+  
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modal-content {
+    background-color: white;
+    margin: 50px auto;
+    max-width: 380px;
+    border-radius: 12px;
+    overflow: hidden;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .modal-header {
+    background: #f44336;
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .modal-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .close-modal {
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  
+  .overdue-bills-list {
+    padding: 20px;
+  }
+  
+  .overdue-bill-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .overdue-bill-item:last-child {
+    border-bottom: none;
+  }
+  
+  .overdue-bill-info .biller-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  
+  .overdue-bill-info .bill-amount.urgent {
+    color: #f44336;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  
+  .overdue-date {
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .pay-urgent-btn {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 414px) {
+    .mobile-container {
+      max-width: 100%;
+      box-shadow: none;
+    }
+  }
+  
+  @media (min-width: 415px) {
+    .mobile-container {
+      border-radius: 12px;
+      margin: 20px auto;
+      overflow: hidden;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+    }
+  }

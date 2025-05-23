@@ -39,6 +39,29 @@ CREATE TABLE IF NOT EXISTS `mydb`.`biller` (
   `Biller_Category` VARCHAR(45) NULL,
   PRIMARY KEY (`Biller_ID`),
   UNIQUE INDEX `Biller_Name_UNIQUE` (`Biller_Name` ASC) VISIBLE);
+
+CREATE TABLE IF NOT EXISTS `mydb`.`bills` (
+  `Bill_ID` INT NOT NULL AUTO_INCREMENT,
+  `Account_Number` INT(6) NOT NULL,
+  `Biller_ID` INT NOT NULL,
+  `Bill_Amount` DECIMAL(10,2) NOT NULL,
+  `Due_Date` DATE NOT NULL,
+  `Bill_Status` ENUM('Pending', 'Paid', 'Overdue') NOT NULL DEFAULT 'Pending',
+  `Bill_Reference` VARCHAR(45) NULL,
+  `Created_Date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`Bill_ID`),
+  INDEX `billstouser_idx` (`Account_Number` ASC) VISIBLE,
+  INDEX `billstobiller_idx` (`Biller_ID` ASC) VISIBLE,
+  CONSTRAINT `billstouser`
+    FOREIGN KEY (`Account_Number`)
+    REFERENCES `mydb`.`user` (`Account_Number`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `billstobiller`
+    FOREIGN KEY (`Biller_ID`)
+    REFERENCES `mydb`.`biller` (`Biller_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
     
  CREATE TABLE IF NOT EXISTS `mydb`.`transaction` (
   `Transaction_ID` INT NOT NULL AUTO_INCREMENT,
@@ -86,12 +109,20 @@ INSERT INTO `mydb`.`payment_methods` (`Payment_ID`, `Payment_Method`)
 VALUES (1, 'Debit Card');
 
 -- Sample transactions (assuming account number 123456 exists)
-INSERT INTO `mydb`.`transaction` (`Account_Number`, `Biller_ID`, `Transaction_Date`, `Transaction_Time`, `Amount`, `Payment_Method_ID`)` (`Transaction_ID`, `Account_Number`, `Biller_ID`, `Transaction_Timestamp`, `Amount`, `Payment_Method_ID`) VALUES
-	('1', '123456', '1', '2025-05-14 4:00:00 PM', '-14000', '1'),
-	('2', '123456', '2', '2025-05-14 5:00:00 PM', '-4000', '1'),
-	('3', '123456', '3', '2025-05-13 2:00:00 PM', '-5000', '1'),
-	('4', '234567', '2', '2025-05-18 2:00:00 PM', '-2000', '1'),
-	('5', '234567', '1', '2025-05-20 2:00:00 PM', '-4569', '1'),
-	('6', '345678', '3', '2025-05-02 2:00:00 PM', '-5000', '1'),
-	('7', '345678', '3', '2025-04-09 2:00:00 PM', '-5000', '1'),
-	('8', '345678', '3', '2025-03-16 2:00:00 PM', '-5000', '1');
+INSERT INTO `mydb`.`transaction` (`Transaction_ID`,`Account_Number`, `Biller_ID`, `Transaction_Timestamp`, `Amount`, `Payment_Method_ID`)VALUES
+	('1', '123456', '1', '2025-05-14 16:00:00', '-14000', '1'),
+	('2', '123456', '2', '2025-05-14 17:00:00', '-4000', '1'),
+	('3', '123456', '3', '2025-05-13 14:00:00', '-5000', '1'),
+	('4', '234567', '2', '2025-05-18 14:00:00', '-2000', '1'),
+	('5', '234567', '1', '2025-05-20 14:00:00', '-4569', '1'),
+	('6', '345678', '3', '2025-05-02 14:00:00', '-5000', '1'),
+	('7', '345678', '3', '2025-04-09 14:00:00', '-5000', '1'),
+	('8', '345678', '3', '2025-03-16 14:00:00', '-5000', '1');
+
+  INSERT INTO `mydb`.`bills` (`Account_Number`, `Biller_ID`, `Bill_Amount`, `Due_Date`, `Bill_Reference`)
+VALUES 
+(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Jeralco'), 2500.00, '2025-06-15', 'ref1'),
+(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Namila Water'), 1800.00, '2025-06-10', 'ref1'),
+(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Konverge ICT'), 3200.00, '2025-06-20', 'ref1'),
+(234567, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Jeralco'), 2800.00, '2025-06-12', 'ref1'),
+(234567, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Namila Water'), 1950.00, '2025-06-08', 'ref1');

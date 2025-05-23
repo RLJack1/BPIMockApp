@@ -3,7 +3,6 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: Helvetica, sans-serif;
-  
 }
 
 body {
@@ -16,7 +15,7 @@ body {
 #homeContainer {
   background-color: white;
   border-radius: 20px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  border: 3px solid #A68526;
   width: 100%;
   max-width: 500px;
   height: 100vh;
@@ -26,26 +25,39 @@ body {
   overflow: hidden;
 }
 
+#homeContainer h2 {
+  padding: 20px 20px 0 20px;
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+}
+
 .wallet-section {
   background-color: #ac2024;
   color: white;
   padding: 30px 20px;
   text-align: left;
   flex: 0 0 auto;
+  border-top: 3px solid #8a1a1d;
+  border-bottom: 3px solid #8a1a1d;
 }
 
 .wallet-section h3 {
-  margin: 0 0 10px 0;
+  margin: 0 0 15px 0;
   font-size: 14px;
-  font-weight: normal;
+  font-weight: bold;
   text-transform: uppercase;
-  opacity: 0.8;
+  opacity: 0.9;
+  letter-spacing: 1px;
 }
 
 .balance-display {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
 }
 
 .balance-display p {
@@ -61,11 +73,13 @@ body {
 }
 
 .functions-grid {
-  padding: 20px;
+  padding: 30px 20px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 25px;
   flex: 1;
+  background-color: #fafafa;
+  border-top: 1px solid #eee;
 }
 
 .grid-item {
@@ -73,17 +87,42 @@ body {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.grid-item:hover {
+  transform: translateY(-2px);
+}
+
+.grid-item a {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  border-radius: 15px;
+  border: 2px solid #e0e0e0;
+  background-color: white;
+  transition: border-color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.grid-item a:hover {
+  border-color: #BC942D;
 }
 
 .grid-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
-  /* background-color: #f0f7ff; */
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  background-color: #f8f8f8;
+  border: 2px solid #e8e8e8;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .grid-icon svg {
@@ -93,8 +132,10 @@ body {
 }
 
 .grid-label {
-  font-size: 12px;
+  font-size: 13px;
   color: #333;
+  font-weight: 500;
+  margin-top: 5px;
 }
 
 .nav-tabs {
@@ -111,6 +152,27 @@ body {
   color: #666;
   position: relative;
   cursor: pointer;
+}
+
+.logout-btn {
+  background-color: #ac2024;
+  color: white;
+  padding: 15px 30px;
+  margin: 20px;
+  border: 2px solid #8a1a1d;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.logout-btn:hover {
+  background-color: #8a1a1d;
+  border-color: #6d1519;
+  transform: translateY(-1px);
 }
 
 #homeContainer button {
