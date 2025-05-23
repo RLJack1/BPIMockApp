@@ -76,8 +76,7 @@ app.get('/transactions', (req, res) => {
     SELECT 
       t.Transaction_ID,
       b.Biller_Name,
-      t.Transaction_Date,
-      t.Transaction_Time,
+      t.Transaction_Timestamp,
       t.Amount,
       pm.Payment_Method,
       t.Reference_Number
@@ -85,7 +84,7 @@ app.get('/transactions', (req, res) => {
     JOIN biller b ON t.Biller_ID = b.Biller_ID
     JOIN payment_methods pm ON t.Payment_Method_ID = pm.Payment_ID
     WHERE t.Account_Number = ?
-    ORDER BY t.Transaction_Date DESC, t.Transaction_Time DESC
+    ORDER BY t.Transaction_Timestamp DESC
   `;
 
   db.query(sql, [accountNumber], (err, results) => {

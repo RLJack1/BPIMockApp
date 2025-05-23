@@ -44,8 +44,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`biller` (
   `Transaction_ID` INT NOT NULL AUTO_INCREMENT,
   `Account_Number` INT(6) NOT NULL,
   `Biller_ID` INT NOT NULL,
-  `Transaction_Date` DATE NOT NULL,
-  `Transaction_Time` TIME NOT NULL,
+  `Transaction_Timestamp` TIMESTAMP NOT NULL,
   `Amount` DECIMAL(10,2) NOT NULL,
   `Payment_Method_ID` INT(1) NOT NULL,
   `Reference_Number` VARCHAR(45) NULL,
@@ -87,8 +86,12 @@ INSERT INTO `mydb`.`payment_methods` (`Payment_ID`, `Payment_Method`)
 VALUES (1, 'Debit Card');
 
 -- Sample transactions (assuming account number 123456 exists)
-INSERT INTO `mydb`.`transaction` (`Account_Number`, `Biller_ID`, `Transaction_Date`, `Transaction_Time`, `Amount`, `Payment_Method_ID`)
-VALUES 
-(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Jeralco'), '2025-05-14', '16:00:00', -14000.00, 1),
-(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Namila Water'), '2025-05-14', '17:00:00', -4000.00, 1),
-(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Konverge ICT'), '2025-05-13', '14:00:00', -5000.00, 1);
+INSERT INTO `mydb`.`transaction` (`Account_Number`, `Biller_ID`, `Transaction_Date`, `Transaction_Time`, `Amount`, `Payment_Method_ID`)` (`Transaction_ID`, `Account_Number`, `Biller_ID`, `Transaction_Timestamp`, `Amount`, `Payment_Method_ID`) VALUES
+	('1', '123456', '1', '2025-05-14 4:00:00 PM', '-14000', '1'),
+	('2', '123456', '2', '2025-05-14 5:00:00 PM', '-4000', '1'),
+	('3', '123456', '3', '2025-05-13 2:00:00 PM', '-5000', '1'),
+	('4', '234567', '2', '2025-05-18 2:00:00 PM', '-2000', '1'),
+	('5', '234567', '1', '2025-05-20 2:00:00 PM', '-4569', '1'),
+	('6', '345678', '3', '2025-05-02 2:00:00 PM', '-5000', '1'),
+	('7', '345678', '3', '2025-04-09 2:00:00 PM', '-5000', '1'),
+	('8', '345678', '3', '2025-03-16 2:00:00 PM', '-5000', '1');

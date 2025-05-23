@@ -1,49 +1,51 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Transaction History</title>
-</head>
-<body>
-  <h2>Transaction History for <%= name %></h2>
-  <a href="/home">Back to Home</a>
-  <table border="1" cellpadding="8">
-    <thead>
-      <tr>
-        <th>Transaction ID</th>
-        <th>Biller Name</th>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Amount</th>
-        <th>Payment Method</th>
-        <th>Reference #</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if (transactions.length === 0) { %>
-        <tr><td colspan="7">No transactions found.</td></tr>
-      <% } else { %>
-        <% transactions.forEach(t => { %>
-          <tr>
-            <td><%= t.Transaction_ID %></td>
-            <td><%= t.Biller_Name %></td>
-            <td><%= t.Transaction_Date.toISOString().split('T')[0] %></td>
-            <td>
-                <%
-                  const [hour, minute] = t.Transaction_Time.split(':');
-                  const h = parseInt(hour);
-                  const ampm = h >= 12 ? 'PM' : 'AM';
-                  const displayHour = h % 12 === 0 ? 12 : h % 12;
-                  const formattedTime = `${displayHour}:${minute} ${ampm}`;
-                %>
-                <%= formattedTime %>
-              </td>
-            <td><%= Number(t.Amount).toFixed(2) %></td> <!-- originally a string; Mumber function formats it into a number -->
-            <td><%= t.Payment_Method %></td>
-            <td><%= t.Reference_Number || 'N/A' %></td>
-          </tr>
-        <% }) %>
-      <% } %>
-    </tbody>
-  </table>
-</body>
+  <head>
+    <title>Transaction History</title>
+  </head>
+  <body>
+    <h2>Transaction History for <%= name %></h2>
+    <a href="/home">Back to Home</a>
+    <table border="1" cellpadding="8">
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Biller Name</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Amount</th>
+          <th>Payment Method</th>
+          <th>Reference #</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (transactions.length === 0) { %>
+          <tr><td colspan="7">No transactions found.</td></tr>
+        <% } else { %>
+          <% transactions.forEach(t => { %>
+            <tr>
+              <td><%= t.Transaction_ID %></td>
+              <td><%= t.Biller_Name %></td>
+              <td><%= t.Transaction_Timestamp.toISOString().split('T')[0] %></td>
+              <td>
+                  <%
+                    // Extract time portion from the timestamp
+                    const timeStr = t.Transaction_Timestamp.toTimeString().split(' ')[0];
+                    const [hour, minute] = timeStr.split(':');
+                    const h = parseInt(hour);
+                    const ampm = h >= 12 ? 'PM' : 'AM';
+                    const displayHour = h % 12 === 0 ? 12 : h % 12;
+                    const formattedTime = `${displayHour}:${minute} ${ampm}`;
+                  %>
+                  <%= formattedTime %>
+                </td>
+              <td><%= Number(t.Amount).toFixed(2) %></td>
+              <td><%= t.Payment_Method %></td>
+              <td><%= t.Reference_Number || 'N/A' %></td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </body>
 </html>
