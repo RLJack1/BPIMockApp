@@ -65,7 +65,7 @@ app.get('/home', (req, res) => {
   });
 });
 
-// route to get transactions and render transaction page
+// Route to get transactions and render transaction page
 app.get('/transactions', (req, res) => {
   if (!req.session.user) {
     return res.redirect('/');
@@ -97,8 +97,8 @@ app.get('/transactions', (req, res) => {
   });
 });
 
-// Route to display bills/paybill page
-app.get('/paybill', (req, res) => {
+// Route to display bills/billers page
+app.get('/billers', (req, res) => {
   if (!req.session.user) {
     return res.redirect('/');
   }
@@ -159,7 +159,7 @@ app.get('/paybill', (req, res) => {
         billersByCategory[category].push(biller);
       });
 
-      res.render('paybill', { 
+      res.render('billers', { 
         name: req.session.user.name, 
         balance: req.session.user.balance,
         pendingBills: pendingBills,
