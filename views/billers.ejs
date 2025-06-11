@@ -168,18 +168,7 @@
 
     <script>
         function billers(billId, billerName, amount) {
-        const userBalance = <%= balance %>;
-        
-        if (amount > userBalance) {
-            alert(`Insufficient balance! You need ₱${(amount - userBalance).toFixed(2)} more to pay this bill.`);
-            return;
-        }
-        
-        const confirmed = confirm(`Are you sure you want to pay ₱${amount.toFixed(2)} to ${billerName}?`);
-        
-        if (confirmed) {
-            alert(`Payment processing for ${billerName} will be implemented in the next phase.`);
-        }
+        window.location.href = `/pay-bill/${billId}`;
         }
 
         function showOverdueBills() {

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Bill - <%= bill.Biller_Name %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/paybill.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <a href="/billers" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>Pay Bill</h1>
+        </header>
+
+        <div class="payment-content">
+            <!-- Bill Summary -->
+            <div class="bill-summary">
+                <div class="biller-name"><%= bill.Biller_Name %></div>
+                <div class="bill-amount">₱<%= Number(bill.Bill_Amount).toFixed(2) %></div>
+                <div class="due-date">
+                    Due: <%= bill.Due_Date.toISOString().split('T')[0] %>
+                    <% 
+                        const today = new Date();
+                        const dueDate = new Date(bill.Due_Date);
+                        const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    %>
+                    <span style="<%= daysUntilDue <= 3 ? 'color: #f44336; font-weight: 600;' : '' %>">
+                        (<%= daysUntilDue > 0 ? daysUntilDue + ' days left' : 'Overdue' %>)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Balance Information -->
+            <div class="balance-info <%= Number(bill.Bill_Amount) > balance ? 'insufficient-funds' : '' %>">
+                <div class="balance-label">Available Balance</div>
+                <div class="balance-amount">₱<%= Number(balance).toFixed(2) %></div>
+            </div>
+
+            <% if (Number(bill.Bill_Amount) > balance) { %>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Insufficient balance! You need ₱<%= (Number(bill.Bill_Amount) - balance).toFixed(2) %> more to pay this bill.
+                </div>
+            <% } %>
+
+            <!-- Payment Method Selection -->
+            <div class="payment-method-section">
+                <div class="section-title">Payment Method</div>
+                <select class="payment-dropdown" id="paymentMethod">
+                    <option value="debit">Debit from Account</option>
+                    <option value="link" disabled>Link (Coming Soon)</option>
+                </select>
+            </div>
+
+            <!-- Pay Button -->
+            <form id="paymentForm" action="/pay-bill" method="POST">
+                <input type="hidden" name="billId" value="<%= bill.Bill_ID %>">
+                <input type="hidden" name="paymentMethod" value="debit">
+                <button type="submit" class="pay-button" <%= Number(bill.Bill_Amount) > balance ? 'disabled' : '' %>>
+                    <i class="fas fa-credit-card"></i>
+                    Pay ₱<%= Number(bill.Bill_Amount).toFixed(2) %>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const billAmount = <%= Number(bill.Bill_Amount) %>;
+            const billerName = '<%= bill.Biller_Name %>';
+            const userBalance = <%= balance %>;
+            
+            if (billAmount > userBalance) {
+                alert(`Insufficient balance! You need ₱${(billAmount - userBalance).toFixed(2)} more to pay this bill.`);
+                return;
+            }
+            
+            const confirmed = confirm(`Are you sure you want to pay ₱${billAmount.toFixed(2)} to ${billerName}?`);
+            
+            if (confirmed) {
+                // Show loading state
+                const button = document.querySelector('.pay-button');
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                // Submit the form
+                this.submit();
+            }
+        });
+
+        // Update hidden input when payment method changes
+        document.getElementById('paymentMethod').addEventListener('change', function() {
+            document.querySelector('input[name="paymentMethod"]').value = this.value;
+        });
+    </script>
+</body>
+</html>

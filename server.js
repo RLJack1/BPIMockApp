@@ -171,6 +171,181 @@ app.get('/billers', (req, res) => {
   });
 });
 
+// Route to display individual bill payment page
+app.get('/pay-bill/:billId', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const billId = req.params.billId;
+  const accountNumber = req.session.user.accountNumber;
+
+  const billQuery = `
+    SELECT 
+      bills.Bill_ID,
+      bills.Bill_Amount,
+      bills.Due_Date,
+      bills.Bill_Status,
+      bills.Bill_Reference,
+      biller.Biller_Name,
+      biller.Biller_Category,
+      biller.Biller_ID
+    FROM bills
+    JOIN biller ON bills.Biller_ID = biller.Biller_ID
+    WHERE bills.Bill_ID = ? AND bills.Account_Number = ? AND bills.Bill_Status = 'Pending'
+  `;
+
+  db.query(billQuery, [billId, accountNumber], (err, results) => {
+    if (err) {
+      console.error('Bill fetch error:', err);
+      return res.status(500).send('Database error');
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send('Bill not found or already paid');
+    }
+
+    const bill = results[0];
+    
+    res.render('paybill', {
+      bill: bill,
+      balance: req.session.user.balance,
+      name: req.session.user.name
+    });
+  });
+});
+
+// Route to process bill payment
+app.post('/pay-bill', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const { billId, paymentMethod } = req.body;
+  const accountNumber = req.session.user.accountNumber;
+
+  // Start transaction
+  db.beginTransaction((err) => {
+    if (err) {
+      console.error('Transaction start error:', err);
+      return res.status(500).send('Payment processing failed');
+    }
+
+    // First, get the bill details and verify it's still payable
+    const billQuery = `
+      SELECT 
+        bills.Bill_ID,
+        bills.Bill_Amount,
+        bills.Bill_Status,
+        biller.Biller_ID,
+        biller.Biller_Name
+      FROM bills
+      JOIN biller ON bills.Biller_ID = biller.Biller_ID
+      WHERE bills.Bill_ID = ? AND bills.Account_Number = ? AND bills.Bill_Status = 'Pending'
+    `;
+
+    db.query(billQuery, [billId, accountNumber], (err, billResults) => {
+      if (err) {
+        return db.rollback(() => {
+          console.error('Bill fetch error:', err);
+          res.status(500).send('Payment processing failed');
+        });
+      }
+
+      if (billResults.length === 0) {
+        return db.rollback(() => {
+          res.status(404).send('Bill not found or already paid');
+        });
+      }
+
+      const bill = billResults[0];
+      const billAmount = parseFloat(bill.Bill_Amount);
+
+      // Check if user has sufficient balance
+      if (billAmount > req.session.user.balance) {
+        return db.rollback(() => {
+          res.status(400).send(`Insufficient balance! You need ₱${(billAmount - req.session.user.balance).toFixed(2)} more.`);
+        });
+      }
+
+      // Update user balance
+      const newBalance = req.session.user.balance - billAmount;
+      const updateBalanceQuery = 'UPDATE user SET Balance = ? WHERE Account_Number = ?';
+      
+      db.query(updateBalanceQuery, [newBalance, accountNumber], (err) => {
+        if (err) {
+          return db.rollback(() => {
+            console.error('Balance update error:', err);
+            res.status(500).send('Payment processing failed');
+          });
+        }
+
+        // Update bill status to 'Paid'
+        const updateBillQuery = 'UPDATE bills SET Bill_Status = ? WHERE Bill_ID = ?';
+        
+        db.query(updateBillQuery, ['Paid', billId], (err) => {
+          if (err) {
+            return db.rollback(() => {
+              console.error('Bill update error:', err);
+              res.status(500).send('Payment processing failed');
+            });
+          }
+
+          // Create transaction record
+          const transactionQuery = `
+            INSERT INTO transaction (Account_Number, Biller_ID, Transaction_Timestamp, Amount, Payment_Method_ID, Reference_Number)
+            VALUES (?, ?, NOW(), ?, 1, ?)
+          `;
+          
+          const referenceNumber = 'TXN' + Date.now().toString().slice(-8);
+          
+          db.query(transactionQuery, [accountNumber, bill.Biller_ID, -billAmount, referenceNumber], (err, transactionResult) => {
+            if (err) {
+              return db.rollback(() => {
+                console.error('Transaction record error:', err);
+                res.status(500).send('Payment processing failed');
+              });
+            }
+
+            // Commit the transaction
+            db.commit((err) => {
+              if (err) {
+                return db.rollback(() => {
+                  console.error('Transaction commit error:', err);
+                  res.status(500).send('Payment processing failed');
+                });
+              }
+
+              // Update session balance
+              req.session.user.balance = newBalance;
+
+              // Redirect to success page or back to billers with success message
+              res.redirect(`/payment-success?ref=${referenceNumber}&biller=${encodeURIComponent(bill.Biller_Name)}&amount=${billAmount}`);
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
+// Payment success page
+app.get('/payment-success', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const { ref, biller, amount } = req.query;
+  
+  res.render('paymentsuccess', {
+    referenceNumber: ref,
+    billerName: decodeURIComponent(biller),
+    amount: amount,
+    newBalance: req.session.user.balance,
+    name: req.session.user.name
+  });
+});
+
 // Get all users (for display)
 app.get('/users', (req, res) => {
     db.query('SELECT Account_Number, First_Name, Last_Name, Email, Balance FROM user', (err, results) => {
