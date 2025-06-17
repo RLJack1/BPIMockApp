@@ -165,7 +165,8 @@ app.get('/billers', (req, res) => {
         pendingBills: pendingBills,
         paidBills: paidBills,
         overdueBills: overdueBills,
-        billersByCategory: billersByCategory
+        billersByCategory: billersByCategory,
+        query: req.query // Pass query parameters to template
       });
     });
   });
@@ -326,6 +327,143 @@ app.post('/pay-bill', (req, res) => {
         });
       });
     });
+  });
+});
+
+// Route to display biller registration form
+app.get('/register-biller/:billerId', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const billerId = req.params.billerId;
+  
+  // Get biller details
+  const billerQuery = 'SELECT * FROM biller WHERE Biller_ID = ?';
+  
+  db.query(billerQuery, [billerId], (err, results) => {
+    if (err) {
+      console.error('Biller fetch error:', err);
+      return res.status(500).send('Database error');
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send('Biller not found');
+    }
+
+    const biller = results[0];
+    
+    res.render('registerbiller', {
+      biller: biller,
+      name: req.session.user.name,
+      balance: req.session.user.balance
+    });
+  });
+});
+
+// Route to process biller registration and create a new bill
+app.post('/register-biller', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const { billerId, billAmount, dueDate, billReference } = req.body;
+  const accountNumber = req.session.user.accountNumber;
+
+  // Validate input
+  if (!billerId || !billAmount || !dueDate) {
+    return res.status(400).send('All fields are required');
+  }
+
+  const amount = parseFloat(billAmount);
+  if (isNaN(amount) || amount <= 0) {
+    return res.status(400).send('Invalid bill amount');
+  }
+
+  // Check if the due date is not in the past
+  const today = new Date();
+  const dueDateObj = new Date(dueDate);
+  if (dueDateObj < today.setHours(0, 0, 0, 0)) {
+    return res.status(400).send('Due date cannot be in the past');
+  }
+
+  // Check if biller exists
+  const billerQuery = 'SELECT * FROM biller WHERE Biller_ID = ?';
+  
+  db.query(billerQuery, [billerId], (err, billerResults) => {
+    if (err) {
+      console.error('Biller validation error:', err);
+      return res.status(500).send('Database error');
+    }
+
+    if (billerResults.length === 0) {
+      return res.status(404).send('Biller not found');
+    }
+
+    // Check if user already has a pending bill for this biller
+    const existingBillQuery = `
+      SELECT * FROM bills 
+      WHERE Account_Number = ? AND Biller_ID = ? AND Bill_Status = 'Pending'
+    `;
+
+    db.query(existingBillQuery, [accountNumber, billerId], (err, existingResults) => {
+      if (err) {
+        console.error('Existing bill check error:', err);
+        return res.status(500).send('Database error');
+      }
+
+      if (existingResults.length > 0) {
+        return res.status(400).send('You already have a pending bill for this biller');
+      }
+
+      // Create new bill
+      const insertBillQuery = `
+        INSERT INTO bills (Account_Number, Biller_ID, Bill_Amount, Due_Date, Bill_Reference, Bill_Status)
+        VALUES (?, ?, ?, ?, ?, 'Pending')
+      `;
+
+      const reference = billReference || `REF${Date.now().toString().slice(-6)}`;
+
+      db.query(insertBillQuery, [accountNumber, billerId, amount, dueDate, reference], (err, result) => {
+        if (err) {
+          console.error('Bill creation error:', err);
+          return res.status(500).send('Failed to register biller');
+        }
+
+        // Redirect to billers page with success message
+        res.redirect('/billers?registered=success&biller=' + encodeURIComponent(billerResults[0].Biller_Name));
+      });
+    });
+  });
+});
+
+// Route to get available billers for registration (API endpoint)
+app.get('/api/available-billers', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: 'Not logged in' });
+  }
+
+  const accountNumber = req.session.user.accountNumber;
+
+  // Get billers that don't have pending bills for this user
+  const availableBillersQuery = `
+    SELECT b.Biller_ID, b.Biller_Name, b.Biller_Category
+    FROM biller b
+    WHERE b.Biller_ID NOT IN (
+      SELECT bills.Biller_ID 
+      FROM bills 
+      WHERE bills.Account_Number = ? AND bills.Bill_Status = 'Pending'
+    )
+    ORDER BY b.Biller_Category, b.Biller_Name
+  `;
+
+  db.query(availableBillersQuery, [accountNumber], (err, results) => {
+    if (err) {
+      console.error('Available billers fetch error:', err);
+      return res.status(500).json({ message: 'Database error' });
+    }
+
+    res.json(results);
   });
 });
 

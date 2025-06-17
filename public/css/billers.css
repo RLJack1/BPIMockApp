@@ -343,7 +343,7 @@
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    background: #1976d2;
+    background: #bccd1f;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -353,7 +353,7 @@
   }
   
   .biller-logo.water {
-    background: #ac2024;
+    background: #1976d2;
   }
   
   .biller-logo.telecom {

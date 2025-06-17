@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Biller - <%= biller.Biller_Name %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/registerbiller.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <a href="/billers" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>Register Biller</h1>
+        </header>
+
+        <!-- Biller Information -->
+        <div class="biller-info">
+            <h3><%= biller.Biller_Name %></h3>
+            <p><strong>Category:</strong> <%= biller.Biller_Category %></p>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                You're about to register this biller and create a new bill to pay.
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="registerForm" action="/register-biller" method="POST">
+            <input type="hidden" name="billerId" value="<%= biller.Biller_ID %>">
+            
+            <div class="form-group">
+                <label for="accountId" class="form-label">
+                    <i class="fas fa-user"></i>
+                    Account ID *
+                </label>
+                <input 
+                    type="text" 
+                    id="accountId" 
+                    name="accountId" 
+                    class="form-input" 
+                    placeholder="Enter your account ID or customer number"
+                    maxlength="20"
+                    required
+                >
+                <small style="color: #666; font-size: 12px;">
+                    Your account identifier with this biller
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="billAmount" class="form-label">
+                    <i class="fas fa-peso-sign"></i>
+                    Bill Amount *
+                </label>
+                <input 
+                    type="number" 
+                    id="billAmount" 
+                    name="billAmount" 
+                    class="form-input" 
+                    placeholder="0.00" 
+                    step="0.01" 
+                    min="0.01" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="dueDate" class="form-label">
+                    <i class="fas fa-calendar"></i>
+                    Due Date *
+                </label>
+                <input 
+                    type="date" 
+                    id="dueDate" 
+                    name="dueDate" 
+                    class="form-input" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="billReference" class="form-label">
+                    <i class="fas fa-hashtag"></i>
+                    Bill Reference (Optional)
+                </label>
+                <input 
+                    type="text" 
+                    id="billReference" 
+                    name="billReference" 
+                    class="form-input" 
+                    placeholder="Enter your account number or reference"
+                    maxlength="45"
+                >
+                <small style="color: #666; font-size: 12px;">
+                    Leave blank to auto-generate a reference number.
+                </small>
+            </div>
+
+            <button type="submit" class="register-button">
+                <i class="fas fa-plus-circle"></i>
+                Register Biller & Create Bill
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Set minimum date to today
+        document.getElementById('dueDate').min = new Date().toISOString().split('T')[0];
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const accountId = document.getElementById('accountId').value.trim();
+            const billAmount = parseFloat(document.getElementById('billAmount').value);
+            const dueDate = document.getElementById('dueDate').value;
+            const billerName = '<%= biller.Biller_Name %>';
+            
+            if (!accountId) {
+                alert('Please enter your Account ID');
+                return;
+            }
+            
+            if (!billAmount || billAmount <= 0) {
+                alert('Please enter a valid bill amount');
+                return;
+            }
+            
+            if (!dueDate) {
+                alert('Please select a due date');
+                return;
+            }
+            
+            const confirmed = confirm(
+                `Are you sure you want to register ${billerName} with the following details?\n\n` +
+                `Account ID: ${accountId}\n` +
+                `Bill Amount: ₱${billAmount.toFixed(2)}\n\n` +
+                `This will create a new pending bill that you can pay later.`
+            );
+            
+            if (confirmed) {
+                // Show loading state
+                const button = document.querySelector('.register-button');
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+                
+                // Submit the form
+                this.submit();
+            }
+        });
+
+        // Format amount input
+        document.getElementById('billAmount').addEventListener('input', function(e) {
+            let value = e.target.value;
+            if (value && !isNaN(value)) {
+                e.target.value = parseFloat(value).toFixed(2);
+            }
+        });
+
+        // Format Account ID input (remove extra spaces, convert to uppercase for consistency)
+        document.getElementById('accountId').addEventListener('blur', function(e) {
+            e.target.value = e.target.value.trim().toUpperCase();
+        });
+    </script>
+</body>
+</html>

@@ -16,9 +16,16 @@
         </a>
         <h1>Pay Bills</h1>
         <div class="header-actions">
-            <i class="fas fa-search"></i>
         </div>
         </header>
+
+        <!-- Success Message -->
+        <% if (typeof query !== 'undefined' && query.registered === 'success') { %>
+        <div class="success-message" style="background: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border-radius: 8px;">
+            <i class="fas fa-check-circle"></i>
+            Successfully registered <%= decodeURIComponent(query.biller || 'biller') %>! Your new bill is now available in pending bills.
+        </div>
+        <% } %>
 
         <!-- Balance Section -->
         <div class="balance-section">
@@ -63,7 +70,7 @@
                     </span>
                     </div>
                 </div>
-                <button class="pay-now-btn" onclick="billers(<%= bill.Bill_ID %>, '<%= bill.Biller_Name %>', <%= bill.Bill_Amount %>)">
+                <button class="pay-now-btn" onclick="payBill(<%= bill.Bill_ID %>, '<%= bill.Biller_Name %>', <%= bill.Bill_Amount %>)">
                     Pay Now
                 </button>
                 </div>
@@ -124,14 +131,14 @@
                 </div>
                 
                 <% billersByCategory[category].forEach(biller => { %>
-                    <div class="biller-item" data-biller="<%= biller.Biller_Name.toLowerCase().replace(/\s+/g, '') %>">
+                    <div class="biller-item" data-biller="<%= biller.Biller_Name.toLowerCase().replace(/\s+/g, '') %>" onclick="registerBiller(<%= biller.Biller_ID %>, '<%= biller.Biller_Name %>')">
                         <div class="biller-logo <%= categoryColors[category] || '' %>">
                             <i class="<%= categoryIcons[category] || 'fas fa-building' %>"></i>
                         </div>
                         <div class="biller-details">
                             <div class="biller-name"><%= biller.Biller_Name.toUpperCase() %></div>
                             <div class="biller-tags">
-                                <!-- Tags can be added here if needed -->
+                                <span class="tag">Click to register</span>
                             </div>
                         </div>
                         <i class="fas fa-chevron-right"></i>
@@ -157,7 +164,7 @@
                 <div class="bill-amount urgent">₱<%= Number(bill.Bill_Amount).toFixed(2) %></div>
                 <div class="overdue-date">Due: <%= bill.Due_Date.toISOString().split('T')[0] %></div>
                 </div>
-                <button class="pay-urgent-btn" onclick="billers(<%= bill.Bill_ID %>, '<%= bill.Biller_Name %>', <%= bill.Bill_Amount %>)">
+                <button class="pay-urgent-btn" onclick="payBill(<%= bill.Bill_ID %>, '<%= bill.Biller_Name %>', <%= bill.Bill_Amount %>)">
                 Pay Now
                 </button>
             </div>
@@ -167,12 +174,18 @@
     </div>
 
     <script>
-        function billers(billId, billerName, amount) {
-        window.location.href = `/pay-bill/${billId}`;
+        // Renamed function to avoid confusion
+        function payBill(billId, billerName, amount) {
+            window.location.href = `/pay-bill/${billId}`;
+        }
+
+        // New function to register a biller
+        function registerBiller(billerId, billerName) {
+            window.location.href = `/register-biller/${billerId}`;
         }
 
         function showOverdueBills() {
-        document.getElementById('overdueModal').style.display = 'block';
+            document.getElementById('overdueModal').style.display = 'block';
         }
 
         // Search functionality
@@ -249,13 +262,17 @@
         }
         });
 
-        // Biller item click handlers
-        document.querySelectorAll('.biller-item').forEach(item => {
-        item.addEventListener('click', function() {
-            const billerName = this.querySelector('.biller-name').textContent;
-            alert(`${billerName} payment form will be implemented in the next phase.`);
-        });
-        });
+        // Parse URL parameters for success message
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('registered') === 'success') {
+            // Auto-hide success message after 5 seconds
+            setTimeout(() => {
+                const successMsg = document.querySelector('.success-message');
+                if (successMsg) {
+                    successMsg.style.display = 'none';
+                }
+            }, 5000);
+        }
     </script>
     </body>
 </html>
