@@ -151,14 +151,6 @@
             }
         });
 
-        // Format amount input
-        document.getElementById('billAmount').addEventListener('input', function(e) {
-            let value = e.target.value;
-            if (value && !isNaN(value)) {
-                e.target.value = parseFloat(value).toFixed(2);
-            }
-        });
-
         // Format Account ID input (remove extra spaces, convert to uppercase for consistency)
         document.getElementById('accountId').addEventListener('blur', function(e) {
             e.target.value = e.target.value.trim().toUpperCase();
