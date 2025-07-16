@@ -53,23 +53,93 @@
                 <div class="section-title">Payment Method</div>
                 <select class="payment-dropdown" id="paymentMethod">
                     <option value="debit">Debit from Account</option>
-                    <option value="link" disabled>Link (Coming Soon)</option>
+                    <option value="ewallet" id="ewalletOption">E-Wallet</option>
                 </select>
+                <div id="ewalletStatus" style="display: none; margin-top: 10px; font-size: 14px;">
+                    <span id="ewalletNotSetup" style="color: #f44336;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        E-Wallet not setup. <a href="/setup-ewallet?returnUrl=/pay-bill/<%= bill.Bill_ID %>" style="color: #2196f3;">Setup now</a>
+                    </span>
+                    <span id="ewalletReady" style="color: #4caf50; display: none;">
+                        <i class="fas fa-check-circle"></i>
+                        E-Wallet ready
+                    </span>
+                </div>
             </div>
 
             <!-- Pay Button -->
             <form id="paymentForm" action="/pay-bill" method="POST">
                 <input type="hidden" name="billId" value="<%= bill.Bill_ID %>">
                 <input type="hidden" name="paymentMethod" value="debit">
-                <button type="submit" class="pay-button" <%= Number(bill.Bill_Amount) > balance ? 'disabled' : '' %>>
+                <button type="submit" class="pay-button" id="payButton" <%= Number(bill.Bill_Amount) > balance ? 'disabled' : '' %>>
                     <i class="fas fa-credit-card"></i>
                     Pay ₱<%= Number(bill.Bill_Amount).toFixed(2) %>
                 </button>
             </form>
+
         </div>
     </div>
 
     <script>
+            let hasEwallet = false;
+
+    // Check if user has e-wallet setup on page load
+    fetch('/api/check-ewallet')
+        .then(response => response.json())
+        .then(data => {
+            hasEwallet = data.hasEwallet;
+            updateEwalletStatus();
+        })
+        .catch(error => {
+            console.error('Error checking e-wallet status:', error);
+        });
+
+    function updateEwalletStatus() {
+        const ewalletStatus = document.getElementById('ewalletStatus');
+        const ewalletNotSetup = document.getElementById('ewalletNotSetup');
+        const ewalletReady = document.getElementById('ewalletReady');
+        const paymentMethod = document.getElementById('paymentMethod');
+
+        if (paymentMethod.value === 'ewallet') {
+            ewalletStatus.style.display = 'block';
+            if (hasEwallet) {
+                ewalletNotSetup.style.display = 'none';
+                ewalletReady.style.display = 'block';
+            } else {
+                ewalletNotSetup.style.display = 'block';
+                ewalletReady.style.display = 'none';
+            }
+        } else {
+            ewalletStatus.style.display = 'none';
+        }
+    }
+
+    document.getElementById('paymentMethod').addEventListener('change', function() {
+        const paymentMethod = this.value;
+        const payButton = document.getElementById('payButton');
+        const form = document.getElementById('paymentForm');
+        
+        document.querySelector('input[name="paymentMethod"]').value = paymentMethod;
+        
+        if (paymentMethod === 'ewallet') {
+            updateEwalletStatus();
+            
+            if (hasEwallet) {
+                payButton.innerHTML = '<i class="fas fa-mobile-alt"></i> Pay ₱<%= Number(bill.Bill_Amount).toFixed(2) %>';
+                payButton.disabled = false;
+            } else {
+                payButton.innerHTML = '<i class="fas fa-mobile-alt"></i> Setup E-Wallet First';
+                payButton.disabled = true;
+            }
+        } else {
+            // Debit payment
+            payButton.innerHTML = '<i class="fas fa-credit-card"></i> Pay ₱<%= Number(bill.Bill_Amount).toFixed(2) %>';
+            payButton.disabled = <%= Number(bill.Bill_Amount) > balance ? 'true' : 'false' %>;
+            updateEwalletStatus();
+        }
+    });
+
+
         document.getElementById('paymentForm').addEventListener('submit', function(e) {
             e.preventDefault();
             

@@ -101,7 +101,7 @@ INSERT INTO `user` (`Account_Number`, `First_Name`, `Last_Name`, `Birth_Date`, `
 INSERT INTO `mydb`.`biller` (`Biller_Name`, `Biller_Category`) 
 VALUES 
 ('Jeralco', 'Utilities'),
-('Namila Water', 'Utilities'),
+('Namila Water', 'Water'),
 ('Konverge ICT', 'Telecommunications');
 
 -- Insert payment method

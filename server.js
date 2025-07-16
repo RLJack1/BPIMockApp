@@ -495,3 +495,254 @@ app.get('/users', (req, res) => {
   app.listen(3000, () => {
     console.log('🌐 Server running at http://localhost:3000');
   });
+
+  // Route to display e-wallet setup page
+app.get('/setup-ewallet', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  res.render('setup-ewallet', {
+    name: req.session.user.name,
+    balance: req.session.user.balance
+  });
+});
+
+// Route to process e-wallet setup (phone number and OTP)
+app.post('/setup-ewallet', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const { phoneNumber, otp } = req.body;
+  const accountNumber = req.session.user.accountNumber;
+
+  // Validate input (basic validation)
+  if (!phoneNumber || !otp) {
+    return res.status(400).send('Phone number and OTP are required');
+  }
+
+  // Simulate OTP verification (accept any 6-digit OTP)
+  if (otp.length !== 6 || !/^\d+$/.test(otp)) {
+    return res.status(400).send('Invalid OTP format');
+  }
+
+  // Add user to e-wallet payment method junction table
+  const addEwalletQuery = `
+    INSERT IGNORE INTO user_payment_junction (Payment_ID, Account_Number)
+    VALUES (2, ?)
+  `;
+
+  db.query(addEwalletQuery, [accountNumber], (err, result) => {
+    if (err) {
+      console.error('E-wallet setup error:', err);
+      return res.status(500).send('Failed to setup e-wallet');
+    }
+
+    // Update session to indicate e-wallet is available
+    req.session.user.hasEwallet = true;
+
+    // Redirect back to the bill payment page or billers page
+    const returnUrl = req.query.returnUrl || '/billers';
+    res.redirect(returnUrl + '?ewallet=setup');
+  });
+});
+
+// Route to display e-wallet payment confirmation
+app.get('/ewallet-payment/:billId', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const billId = req.params.billId;
+  const accountNumber = req.session.user.accountNumber;
+
+  // Check if user has e-wallet setup
+  const checkEwalletQuery = `
+    SELECT * FROM user_payment_junction 
+    WHERE Account_Number = ? AND Payment_ID = 2
+  `;
+
+  db.query(checkEwalletQuery, [accountNumber], (err, ewalletResults) => {
+    if (err) {
+      console.error('E-wallet check error:', err);
+      return res.status(500).send('Database error');
+    }
+
+    if (ewalletResults.length === 0) {
+      return res.redirect(`/setup-ewallet?returnUrl=/ewallet-payment/${billId}`);
+    }
+
+    // Get bill details
+    const billQuery = `
+      SELECT 
+        bills.Bill_ID,
+        bills.Bill_Amount,
+        bills.Due_Date,
+        bills.Bill_Status,
+        bills.Bill_Reference,
+        biller.Biller_Name,
+        biller.Biller_Category,
+        biller.Biller_ID
+      FROM bills
+      JOIN biller ON bills.Biller_ID = biller.Biller_ID
+      WHERE bills.Bill_ID = ? AND bills.Account_Number = ? AND bills.Bill_Status = 'Pending'
+    `;
+
+    db.query(billQuery, [billId, accountNumber], (err, billResults) => {
+      if (err) {
+        console.error('Bill fetch error:', err);
+        return res.status(500).send('Database error');
+      }
+
+      if (billResults.length === 0) {
+        return res.status(404).send('Bill not found or already paid');
+      }
+
+      const bill = billResults[0];
+      
+      res.render('ewallet-payment', {
+        bill: bill,
+        balance: req.session.user.balance,
+        name: req.session.user.name
+      });
+    });
+  });
+});
+
+// Route to process e-wallet payment
+app.post('/ewallet-payment', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  const { billId, otp } = req.body;
+  const accountNumber = req.session.user.accountNumber;
+
+  // Validate OTP (accept any 6-digit OTP)
+  if (!otp || otp.length !== 6 || !/^\d+$/.test(otp)) {
+    return res.status(400).send('Invalid OTP');
+  }
+
+  // Check if user has e-wallet setup
+  const checkEwalletQuery = `
+    SELECT * FROM user_payment_junction 
+    WHERE Account_Number = ? AND Payment_ID = 2
+  `;
+
+  db.query(checkEwalletQuery, [accountNumber], (err, ewalletResults) => {
+    if (err) {
+      console.error('E-wallet check error:', err);
+      return res.status(500).send('Database error');
+    }
+
+    if (ewalletResults.length === 0) {
+      return res.status(400).send('E-wallet not setup');
+    }
+
+    // Start transaction (same logic as regular payment but with Payment_Method_ID = 2)
+    db.beginTransaction((err) => {
+      if (err) {
+        console.error('Transaction start error:', err);
+        return res.status(500).send('Payment processing failed');
+      }
+
+      // Get bill details
+      const billQuery = `
+        SELECT 
+          bills.Bill_ID,
+          bills.Bill_Amount,
+          bills.Bill_Status,
+          biller.Biller_ID,
+          biller.Biller_Name
+        FROM bills
+        JOIN biller ON bills.Biller_ID = biller.Biller_ID
+        WHERE bills.Bill_ID = ? AND bills.Account_Number = ? AND bills.Bill_Status = 'Pending'
+      `;
+
+      db.query(billQuery, [billId, accountNumber], (err, billResults) => {
+        if (err) {
+          return db.rollback(() => {
+            console.error('Bill fetch error:', err);
+            res.status(500).send('Payment processing failed');
+          });
+        }
+
+        if (billResults.length === 0) {
+          return db.rollback(() => {
+            res.status(404).send('Bill not found or already paid');
+          });
+        }
+
+        const bill = billResults[0];
+        const billAmount = parseFloat(bill.Bill_Amount);
+
+        // For e-wallet, we don't deduct from user balance, just process the payment
+        // Update bill status to 'Paid'
+        const updateBillQuery = 'UPDATE bills SET Bill_Status = ? WHERE Bill_ID = ?';
+        
+        db.query(updateBillQuery, ['Paid', billId], (err) => {
+          if (err) {
+            return db.rollback(() => {
+              console.error('Bill update error:', err);
+              res.status(500).send('Payment processing failed');
+            });
+          }
+
+          // Create transaction record with e-wallet payment method
+          const transactionQuery = `
+            INSERT INTO transaction (Account_Number, Biller_ID, Transaction_Timestamp, Amount, Payment_Method_ID, Reference_Number)
+            VALUES (?, ?, NOW(), ?, 2, ?)
+          `;
+          
+          const referenceNumber = 'EWT' + Date.now().toString().slice(-8);
+          
+          db.query(transactionQuery, [accountNumber, bill.Biller_ID, -billAmount, referenceNumber], (err, transactionResult) => {
+            if (err) {
+              return db.rollback(() => {
+                console.error('Transaction record error:', err);
+                res.status(500).send('Payment processing failed');
+              });
+            }
+
+            // Commit the transaction
+            db.commit((err) => {
+              if (err) {
+                return db.rollback(() => {
+                  console.error('Transaction commit error:', err);
+                  res.status(500).send('Payment processing failed');
+                });
+              }
+
+              // Redirect to success page
+              res.redirect(`/payment-success?ref=${referenceNumber}&biller=${encodeURIComponent(bill.Biller_Name)}&amount=${billAmount}&method=ewallet`);
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
+// Add route to check if user has e-wallet setup
+app.get('/api/check-ewallet', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: 'Not logged in' });
+  }
+
+  const accountNumber = req.session.user.accountNumber;
+  
+  const checkEwalletQuery = `
+    SELECT * FROM user_payment_junction 
+    WHERE Account_Number = ? AND Payment_ID = 2
+  `;
+
+  db.query(checkEwalletQuery, [accountNumber], (err, results) => {
+    if (err) {
+      console.error('E-wallet check error:', err);
+      return res.status(500).json({ message: 'Database error' });
+    }
+
+    res.json({ hasEwallet: results.length > 0 });
+  });
+});

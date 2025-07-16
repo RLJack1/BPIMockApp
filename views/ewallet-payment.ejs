@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Wallet Payment - <%= bill.Biller_Name %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <a href="/pay-bill/<%= bill.Bill_ID %>" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>E-Wallet Payment</h1>
+        </header>
+
+        <div class="payment-content">
+            <!-- Payment Method Info -->
+            <div class="payment-method-info">
+                <div class="method-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="method-name">E-Wallet Payment</div>
+                <div class="method-status">
+                    <i class="fas fa-check-circle"></i>
+                    Linked & Ready
+                </div>
+            </div>
+
+            <!-- Bill Summary -->
+            <div class="bill-summary">
+                <div class="biller-name"><%= bill.Biller_Name %></div>
+                <div class="bill-amount">₱<%= Number(bill.Bill_Amount).toFixed(2) %></div>
+                <div class="due-date">
+                    Due: <%= bill.Due_Date.toISOString().split('T')[0] %>
+                    <% 
+                        const today = new Date();
+                        const dueDate = new Date(bill.Due_Date);
+                        const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    %>
+                    <span style="<%= daysUntilDue <= 3 ? 'color: #f44336; font-weight: 600;' : '' %>">
+                        (<%= daysUntilDue > 0 ? daysUntilDue + ' days left' : 'Overdue' %>)
+                    </span>
+                </div>
+            </div>
+
+            <!-- OTP Input -->
+            <form id="ewalletPaymentForm" action="/ewallet-payment" method="POST">
+                <input type="hidden" name="billId" value="<%= bill.Bill_ID %>">
+                
+                <div class="otp-section">
+                    <div class="section-title">Enter OTP to Confirm Payment</div>
+                    <div class="otp-info">
+                        <i class="fas fa-info-circle"></i>
+                        Enter your 6-digit OTP to authorize this payment
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" id="otp" name="otp" placeholder="6-digit OTP" maxlength="6" pattern="\d{6}" required>
+                    </div>
+
+                    <button type="button" id="resendOtpBtn" class="resend-otp-btn">
+                        <i class="fas fa-redo"></i>
+                        Resend OTP
+                    </button>
+                </div>
+
+                <button type="submit" class="pay-button">
+                    <i class="fas fa-mobile-alt"></i>
+                    Pay ₱<%= Number(bill.Bill_Amount).toFixed(2) %> via E-Wallet
+                </button>
+            </form>
+
+            <div class="security-notice">
+                <i class="fas fa-shield-alt"></i>
+                <small>Your payment is secured with end-to-end encryption</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-generate demo OTP on page load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                alert('Demo OTP: 654321');
+            }, 1000);
+        });
+
+        document.getElementById('ewalletPaymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const otp = document.getElementById('otp').value;
+            const billAmount = <%= Number(bill.Bill_Amount) %>;
+            const billerName = '<%= bill.Biller_Name %>';
+            
+            if (!otp || otp.length !== 6) {
+                alert('Please enter a valid 6-digit OTP');
+                return;
+            }
+            
+            const confirmed = confirm(`Confirm payment of ₱${billAmount.toFixed(2)} to ${billerName} via E-Wallet?`);
+            
+            if (confirmed) {
+                // Show loading state
+                const button = document.querySelector('.pay-button');
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+                
+                // Submit the form
+                this.submit();
+            }
+        });
+
+        // Resend OTP functionality
+        document.getElementById('resendOtpBtn').addEventListener('click', function() {
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-check"></i> OTP Sent';
+                alert('New Demo OTP: 654321');
+                
+                setTimeout(() => {
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-redo"></i> Resend OTP';
+                }, 3000);
+            }, 2000);
+        });
+
+        // Auto-format OTP input
+        document.getElementById('otp').addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            this.value = value;
+            
+            // Auto-submit when 6 digits are entered
+            if (value.length === 6) {
+                document.getElementById('ewalletPaymentForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

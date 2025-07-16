@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup E-Wallet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <a href="/billers" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>Setup E-Wallet</h1>
+        </header>
+
+        <div class="setup-content">
+            <div class="setup-info">
+                <div class="ewallet-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h2>Link your E-Wallet</h2>
+                <p>Enter your phone number to link your e-wallet account for convenient payments.</p>
+            </div>
+
+            <form id="ewalletSetupForm" action="/setup-ewallet" method="POST">
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="09XXXXXXXXX" required>
+                </div>
+
+                <button type="button" id="sendOtpBtn" class="send-otp-btn">
+                    <i class="fas fa-paper-plane"></i>
+                    Send OTP
+                </button>
+
+                <div class="otp-section" id="otpSection" style="display: none;">
+                    <div class="form-group">
+                        <label for="otp">Enter OTP</label>
+                        <input type="text" id="otp" name="otp" placeholder="6-digit OTP" maxlength="6" pattern="\d{6}">
+                    </div>
+                    
+                    <button type="submit" class="setup-button">
+                        <i class="fas fa-check"></i>
+                        Verify & Setup E-Wallet
+                    </button>
+                </div>
+            </form>
+
+            <div class="security-info">
+                <i class="fas fa-shield-alt"></i>
+                <small>Your phone number is securely encrypted and used only for payment verification.</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('sendOtpBtn').addEventListener('click', function() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            
+            if (!phoneNumber || phoneNumber.length < 11) {
+                alert('Please enter a valid phone number');
+                return;
+            }
+
+            // Simulate sending OTP
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-check"></i> OTP Sent';
+                document.getElementById('otpSection').style.display = 'block';
+                document.getElementById('otp').focus();
+                
+                // Show fake OTP for demo purposes
+                setTimeout(() => {
+                    alert('Demo OTP: 123456');
+                }, 1000);
+            }, 2000);
+        });
+
+        document.getElementById('ewalletSetupForm').addEventListener('submit', function(e) {
+            const otp = document.getElementById('otp').value;
+            
+            if (!otp || otp.length !== 6) {
+                e.preventDefault();
+                alert('Please enter a valid 6-digit OTP');
+                return;
+            }
+
+            // Show loading state
+            const button = document.querySelector('.setup-button');
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting up...';
+        });
+
+        // Auto-format phone number
+        document.getElementById('phoneNumber').addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 11) {
+                value = value.substring(0, 11);
+            }
+            this.value = value;
+        });
+
+        // Auto-submit OTP when 6 digits are entered
+        document.getElementById('otp').addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            this.value = value;
+            
+            if (value.length === 6) {
+                document.getElementById('ewalletSetupForm').submit();
+            }
+        });
+    </script>
+</body>
+</html>
