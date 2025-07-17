@@ -1,0 +1,340 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #ac2024;
+    color: #333;
+    line-height: 1.4;
+}
+
+.mobile-container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    min-height: 100vh;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile Header */
+.mobile-header {
+    background: #BC942D;
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn {
+    color: white;
+    font-size: 20px;
+    text-decoration: none;
+    padding: 8px;
+    margin-left: -8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.back-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    flex: 1;
+    text-align: center;
+    margin: 0 20px;
+}
+
+/* Setup Content Section */
+.setup-content {
+    padding: 20px;
+    background: white;
+}
+
+.setup-info {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.ewallet-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: #BC942D;
+    color: white;
+    border-radius: 50%;
+    margin-bottom: 16px;
+    font-size: 32px;
+}
+
+.setup-info h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.setup-info p {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Form Styles */
+form {
+    background: white;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #f8f9fa;
+    transition: all 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #BC942D;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(188, 148, 45, 0.1);
+}
+
+.form-group input::placeholder {
+    color: #999;
+}
+
+/* Send OTP Button */
+.send-otp-btn {
+    width: 100%;
+    background: #BC942D;
+    color: white;
+    border: none;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.send-otp-btn:hover {
+    background: #a68228;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(188, 148, 45, 0.3);
+}
+
+.send-otp-btn:active {
+    transform: translateY(0);
+}
+
+.send-otp-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.send-otp-btn i {
+    font-size: 18px;
+}
+
+/* OTP Section */
+.otp-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+
+/* Setup Button */
+.setup-button {
+    width: 100%;
+    background: #BC942D;
+    color: white;
+    border: none;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.setup-button:hover {
+    background: #a68228;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(188, 148, 45, 0.3);
+}
+
+.setup-button:active {
+    transform: translateY(0);
+}
+
+.setup-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.setup-button i {
+    font-size: 18px;
+}
+
+/* Security Info */
+.security-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+    padding: 16px;
+    background: #e8f5e8;
+    border-radius: 8px;
+    border: 1px solid #c8e6c9;
+}
+
+.security-info i {
+    color: #4caf50;
+    font-size: 16px;
+}
+
+.security-info small {
+    color: #2e7d32;
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.3;
+}
+
+/* Loading state for buttons */
+.send-otp-btn .fa-spinner,
+.setup-button .fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Focus styles for accessibility */
+.form-group input:focus,
+.send-otp-btn:focus,
+.setup-button:focus {
+    outline: 2px solid #BC942D;
+    outline-offset: 2px;
+}
+
+/* Input validation states */
+.form-group input:valid {
+    border-color: #4caf50;
+}
+
+.form-group input:invalid {
+    border-color: #f44336;
+}
+
+/* Error states */
+.form-group input.error {
+    border-color: #f44336;
+    background: #ffebee;
+}
+
+.error-message {
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.form-group input.success {
+    border-color: #4caf50;
+    background: #e8f5e8;
+}
+
+/* Number input styling */
+input[type="tel"]::-webkit-inner-spin-button,
+input[type="tel"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="tel"] {
+    -moz-appearance: textfield;
+}
+
+/* Responsive Design */
+@media (max-width: 414px) {
+    .mobile-container {
+        max-width: 100%;
+        box-shadow: none;
+    }
+    
+    .setup-content {
+        padding: 16px;
+    }
+    
+    .setup-info {
+        padding: 16px;
+    }
+    
+    .otp-section {
+        padding: 16px;
+    }
+}
+
+@media (min-width: 415px) {
+    .mobile-container {
+        border-radius: 12px;
+        overflow: hidden;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+    }
+}
