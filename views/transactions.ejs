@@ -1,51 +1,157 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction History</title>
-  </head>
-  <body>
-    <h2>Transaction History for <%= name %></h2>
-    <a href="/home">Back to Home</a>
-    <table border="1" cellpadding="8">
-      <thead>
-        <tr>
-          <th>Transaction ID</th>
-          <th>Biller Name</th>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Amount</th>
-          <th>Payment Method</th>
-          <th>Reference #</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (transactions.length === 0) { %>
-          <tr><td colspan="7">No transactions found.</td></tr>
-        <% } else { %>
-          <% transactions.forEach(t => { %>
-            <tr>
-              <td><%= t.Transaction_ID %></td>
-              <td><%= t.Biller_Name %></td>
-              <td><%= t.Transaction_Timestamp.toISOString().split('T')[0] %></td>
-              <td>
-                  <%
-                    // Extract time portion from the timestamp
-                    const timeStr = t.Transaction_Timestamp.toTimeString().split(' ')[0];
-                    const [hour, minute] = timeStr.split(':');
-                    const h = parseInt(hour);
-                    const ampm = h >= 12 ? 'PM' : 'AM';
-                    const displayHour = h % 12 === 0 ? 12 : h % 12;
-                    const formattedTime = `${displayHour}:${minute} ${ampm}`;
-                  %>
-                  <%= formattedTime %>
-                </td>
-              <td><%= Number(t.Amount).toFixed(2) %></td>
-              <td><%= t.Payment_Method %></td>
-              <td><%= t.Reference_Number || 'N/A' %></td>
-            </tr>
-          <% }) %>
-        <% } %>
-      </tbody>
-    </table>
-  </body>
+    <link rel="stylesheet" href="/css/billers.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <a href="/home" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>Transaction History</h1>
+            <div class="header-actions">
+                <i class="fas fa-filter"></i>
+            </div>
+        </header>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterTransactions('all')">All</button>
+                <button class="filter-btn" onclick="filterTransactions('today')">Today</button>
+                <button class="filter-btn" onclick="filterTransactions('week')">This Week</button>
+                <button class="filter-btn" onclick="filterTransactions('month')">This Month</button>
+            </div>
+        </div>
+
+        <!-- Transactions List -->
+        <section class="transactions-list">
+            <h2 class="section-header">
+                <i class="fas fa-receipt"></i>
+                Recent Transactions
+                <% if (transactions.length > 0) { %>
+                <span class="bill-count"><%= transactions.length %></span>
+                <% } %>
+            </h2>
+
+            <% if (transactions.length === 0) { %>
+                <div class="no-transactions">
+                    <i class="fas fa-receipt"></i>
+                    <p>No transactions yet</p>
+                    <small>Your transaction history will appear here once you start making payments</small>
+                </div>
+            <% } else { %>
+                <div class="transactions-container">
+                    <% transactions.forEach(t => { %>
+                        <div class="transaction-card" data-date="<%= t.Transaction_Timestamp.toISOString().split('T')[0] %>">
+                            <div class="transaction-header">
+                                <div class="transaction-id">
+                                    #<%= t.Transaction_ID %>
+                                </div>
+                                <div class="transaction-amount">
+                                    ₱<%= Number(t.Amount).toFixed(2) %>
+                                </div>
+                            </div>
+                            
+                            <div class="transaction-biller">
+                                <%= t.Biller_Name %>
+                            </div>
+                            
+                            <div class="transaction-details">
+                                <div class="transaction-date-time">
+                                    <div class="transaction-date">
+                                        <%= t.Transaction_Timestamp.toISOString().split('T')[0] %>
+                                    </div>
+                                    <div class="transaction-time">
+                                        <%
+                                        // Extract time portion from the timestamp
+                                        const timeStr = t.Transaction_Timestamp.toTimeString().split(' ')[0];
+                                        const [hour, minute] = timeStr.split(':');
+                                        const h = parseInt(hour);
+                                        const ampm = h >= 12 ? 'PM' : 'AM';
+                                        const displayHour = h % 12 === 0 ? 12 : h % 12;
+                                        const formattedTime = `${displayHour}:${minute} ${ampm}`;
+                                        %>
+                                        <%= formattedTime %>
+                                    </div>
+                                </div>
+                                
+                                <div class="transaction-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="transaction-footer">
+                                <div class="payment-method">
+                                    <i class="fas fa-credit-card"></i>
+                                    <%= t.Payment_Method %>
+                                </div>
+                                <div class="reference-number">
+                                    Ref: <%= t.Reference_Number || 'N/A' %>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </section>
+    </div>
+
+    <script>
+        function filterTransactions(period) {
+            const transactions = document.querySelectorAll('.transaction-card');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const today = new Date();
+            
+            // Update active filter button
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            transactions.forEach(transaction => {
+                const transactionDate = new Date(transaction.dataset.date);
+                let show = true;
+                
+                switch(period) {
+                    case 'today':
+                        show = transactionDate.toDateString() === today.toDateString();
+                        break;
+                    case 'week':
+                        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        show = transactionDate >= weekAgo;
+                        break;
+                    case 'month':
+                        const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        show = transactionDate >= monthAgo;
+                        break;
+                    case 'all':
+                    default:
+                        show = true;
+                        break;
+                }
+                
+                transaction.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        // Add some animations on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.transaction-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
 </html>

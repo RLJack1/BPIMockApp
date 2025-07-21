@@ -70,7 +70,7 @@
             <!-- Pay Button -->
             <form id="paymentForm" action="/pay-bill" method="POST">
                 <input type="hidden" name="billId" value="<%= bill.Bill_ID %>">
-                <input type="hidden" name="paymentMethod" value="debit">
+                <input type="hidden" name="paymentMethod" value="debit" id="paymentMethodInput">
                 <button type="submit" class="pay-button" id="payButton" <%= Number(bill.Bill_Amount) > balance ? 'disabled' : '' %>>
                     <i class="fas fa-credit-card"></i>
                     Pay ₱<%= Number(bill.Bill_Amount).toFixed(2) %>
@@ -81,66 +81,87 @@
     </div>
 
     <script>
-            let hasEwallet = false;
+        let hasEwallet = false;
 
-    // Check if user has e-wallet setup on page load
-    fetch('/api/check-ewallet')
-        .then(response => response.json())
-        .then(data => {
-            hasEwallet = data.hasEwallet;
-            updateEwalletStatus();
-        })
-        .catch(error => {
-            console.error('Error checking e-wallet status:', error);
+        // Check if user has e-wallet setup on page load
+        fetch('/api/check-ewallet')
+            .then(response => response.json())
+            .then(data => {
+                hasEwallet = data.hasEwallet;
+                updateEwalletStatus();
+            })
+            .catch(error => {
+                console.error('Error checking e-wallet status:', error);
+            });
+
+        function updateEwalletStatus() {
+            const ewalletStatus = document.getElementById('ewalletStatus');
+            const ewalletNotSetup = document.getElementById('ewalletNotSetup');
+            const ewalletReady = document.getElementById('ewalletReady');
+            const paymentMethod = document.getElementById('paymentMethod');
+
+            if (paymentMethod.value === 'ewallet') {
+                ewalletStatus.style.display = 'block';
+                if (hasEwallet) {
+                    ewalletNotSetup.style.display = 'none';
+                    ewalletReady.style.display = 'block';
+                } else {
+                    ewalletNotSetup.style.display = 'block';
+                    ewalletReady.style.display = 'none';
+                }
+            } else {
+                ewalletStatus.style.display = 'none';
+            }
+        }
+
+        document.getElementById('paymentMethod').addEventListener('change', function() {
+            const paymentMethod = this.value;
+            const payButton = document.getElementById('payButton');
+            const form = document.getElementById('paymentForm');
+            
+            document.getElementById('paymentMethodInput').value = paymentMethod;
+            
+            if (paymentMethod === 'ewallet') {
+                updateEwalletStatus();
+                
+                if (hasEwallet) {
+                    payButton.innerHTML = '<i class="fas fa-mobile-alt"></i> Pay ₱<%= Number(bill.Bill_Amount).toFixed(2) %>';
+                    payButton.disabled = false;
+                    // Change form action for e-wallet payments
+                    form.action = '/ewallet-payment/<%= bill.Bill_ID %>';
+                    form.method = 'GET'; // Use GET to navigate to e-wallet payment page
+                } else {
+                    payButton.innerHTML = '<i class="fas fa-mobile-alt"></i> Setup E-Wallet First';
+                    payButton.disabled = true;
+                    form.action = '/setup-ewallet?returnUrl=/pay-bill/<%= bill.Bill_ID %>';
+                    form.method = 'GET';
+                }
+            } else {
+                // Debit payment
+                payButton.innerHTML = '<i class="fas fa-credit-card"></i> Pay ₱<%= Number(bill.Bill_Amount).toFixed(2) %>';
+                payButton.disabled = <%= Number(bill.Bill_Amount) > balance ? 'true' : 'false' %>;
+                // Reset form action for regular payments
+                form.action = '/pay-bill';
+                form.method = 'POST';
+                updateEwalletStatus();
+            }
         });
 
-    function updateEwalletStatus() {
-        const ewalletStatus = document.getElementById('ewalletStatus');
-        const ewalletNotSetup = document.getElementById('ewalletNotSetup');
-        const ewalletReady = document.getElementById('ewalletReady');
-        const paymentMethod = document.getElementById('paymentMethod');
-
-        if (paymentMethod.value === 'ewallet') {
-            ewalletStatus.style.display = 'block';
-            if (hasEwallet) {
-                ewalletNotSetup.style.display = 'none';
-                ewalletReady.style.display = 'block';
-            } else {
-                ewalletNotSetup.style.display = 'block';
-                ewalletReady.style.display = 'none';
-            }
-        } else {
-            ewalletStatus.style.display = 'none';
-        }
-    }
-
-    document.getElementById('paymentMethod').addEventListener('change', function() {
-        const paymentMethod = this.value;
-        const payButton = document.getElementById('payButton');
-        const form = document.getElementById('paymentForm');
-        
-        document.querySelector('input[name="paymentMethod"]').value = paymentMethod;
-        
-        if (paymentMethod === 'ewallet') {
-            updateEwalletStatus();
-            
-            if (hasEwallet) {
-                payButton.innerHTML = '<i class="fas fa-mobile-alt"></i> Pay ₱<%= Number(bill.Bill_Amount).toFixed(2) %>';
-                payButton.disabled = false;
-            } else {
-                payButton.innerHTML = '<i class="fas fa-mobile-alt"></i> Setup E-Wallet First';
-                payButton.disabled = true;
-            }
-        } else {
-            // Debit payment
-            payButton.innerHTML = '<i class="fas fa-credit-card"></i> Pay ₱<%= Number(bill.Bill_Amount).toFixed(2) %>';
-            payButton.disabled = <%= Number(bill.Bill_Amount) > balance ? 'true' : 'false' %>;
-            updateEwalletStatus();
-        }
-    });
-
-
         document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            
+            // For e-wallet payments, just navigate to the e-wallet page
+            if (paymentMethod === 'ewallet') {
+                if (hasEwallet) {
+                    // Don't prevent default, let it navigate to e-wallet payment page
+                    return;
+                } else {
+                    // Don't prevent default, let it navigate to setup page
+                    return;
+                }
+            }
+            
+            // For regular debit payments, show confirmation
             e.preventDefault();
             
             const billAmount = <%= Number(bill.Bill_Amount) %>;
@@ -165,10 +186,16 @@
             }
         });
 
-        // Update hidden input when payment method changes
-        document.getElementById('paymentMethod').addEventListener('change', function() {
-            document.querySelector('input[name="paymentMethod"]').value = this.value;
+        // Check for URL parameters to show success messages
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('ewallet') === 'setup') {
+                alert('E-wallet setup successful! You can now use e-wallet for payments.');
+                // Update the ewallet status
+                hasEwallet = true;
+                updateEwalletStatus();
+            }
         });
-    </script>
+        </script>
 </body>
 </html>

@@ -11,7 +11,7 @@
   
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #BC942D;
+    background-color: #ac2024;
     color: #333;
     line-height: 1.4;
   }
@@ -26,7 +26,7 @@
   
   /* Mobile Header */
   .mobile-header {
-    background: #ac2024;
+    background: #BC942D;
     color: white;
     padding: 16px 20px;
     display: flex;
@@ -95,7 +95,7 @@
   }
   
   .balance-amount {
-    color: #ac2024;
+    color: #BC942D;
     font-size: 28px;
     font-weight: 700;
   }
@@ -117,11 +117,11 @@
   }
   
   .section-header i {
-    color: #ac2024;
+    color: #BC942D;
   }
   
   .bill-count {
-    background: #ac2024;
+    background: #BC942D;
     color: white;
     font-size: 12px;
     padding: 2px 8px;
@@ -180,7 +180,7 @@
   .bill-amount {
     font-size: 18px;
     font-weight: 700;
-    color: #ac2024;
+    color: #BC942D;
     margin-bottom: 4px;
   }
   
@@ -204,7 +204,7 @@
   }
   
   .pay-now-btn {
-    background: #ac2024;
+    background: #BC942D;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -288,7 +288,7 @@
   
   .search-input:focus {
     outline: none;
-    border-color: #ac2024;
+    border-color: #BC942D;
     background: white;
   }
   
@@ -319,7 +319,7 @@
   }
   
   .category-header i {
-    color: #ac2024;
+    color: #BC942D;
   }
   
   .biller-item {
@@ -343,7 +343,7 @@
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    background: #bccd1f;
+    background: #ac2024;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -492,3 +492,203 @@
       overflow-y: auto;
     }
   }
+
+  .transaction-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .transaction-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .transaction-id {
+            font-size: 12px;
+            color: #666;
+            background: #f5f7fa;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .transaction-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #BC942D;
+        }
+        
+        .transaction-biller {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .transaction-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .transaction-date-time {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .transaction-date {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .transaction-time {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .transaction-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .payment-method {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .reference-number {
+            font-size: 12px;
+            color: #BC942D;
+            font-weight: 500;
+        }
+        
+        .transactions-summary {
+            background: linear-gradient(135deg, #e6e6e6 0%, #e6e6e6 100%);
+            padding: 20px;
+        }
+        
+        .summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .summary-count {
+            color: #BC942D;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .summary-total {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .no-transactions {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .no-transactions i {
+            font-size: 64px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .no-transactions p {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .no-transactions small {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .transactions-list {
+            padding: 20px;
+        }
+        
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #4caf50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .filter-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        
+        .filter-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn.active {
+            background: #BC942D;
+            color: white;
+            border-color: #BC942D;
+        }
+        
+        .filter-btn:hover:not(.active) {
+            background: #f0f0f0;
+        }

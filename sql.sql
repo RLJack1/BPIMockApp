@@ -107,6 +107,8 @@ VALUES
 -- Insert payment method
 INSERT INTO `mydb`.`payment_methods` (`Payment_ID`, `Payment_Method`)
 VALUES (1, 'Debit Card');
+INSERT INTO `mydb`.`payment_methods` (`Payment_ID`, `Payment_Method`)
+VALUES (2, 'E-Wallet');
 
 -- Sample transactions (assuming account number 123456 exists)
 INSERT INTO `mydb`.`transaction` (`Transaction_ID`,`Account_Number`, `Biller_ID`, `Transaction_Timestamp`, `Amount`, `Payment_Method_ID`)VALUES

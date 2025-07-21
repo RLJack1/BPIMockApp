@@ -542,9 +542,15 @@ app.post('/setup-ewallet', (req, res) => {
     // Update session to indicate e-wallet is available
     req.session.user.hasEwallet = true;
 
-    // Redirect back to the bill payment page or billers page
+    // Get the return URL from query parameters
     const returnUrl = req.query.returnUrl || '/billers';
-    res.redirect(returnUrl + '?ewallet=setup');
+    
+    // Redirect with success parameter
+    if (returnUrl.includes('/pay-bill/')) {
+      res.redirect(returnUrl + '?ewallet=setup');
+    } else {
+      res.redirect(returnUrl + '?ewallet=setup');
+    }
   });
 });
 
