@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const path = require('path');
 const app = express();
+const fs = require('fs');
 
 // Middleware
 app.use(express.json());
@@ -297,9 +298,9 @@ app.post('/pay-bill', (req, res) => {
             INSERT INTO transaction (Account_Number, Biller_ID, Transaction_Timestamp, Amount, Payment_Method_ID, Reference_Number)
             VALUES (?, ?, NOW(), ?, 1, ?)
           `;
-          
+
           const referenceNumber = 'TXN' + Date.now().toString().slice(-8);
-          
+
           db.query(transactionQuery, [accountNumber, bill.Biller_ID, -billAmount, referenceNumber], (err, transactionResult) => {
             if (err) {
               return db.rollback(() => {
@@ -316,6 +317,19 @@ app.post('/pay-bill', (req, res) => {
                   res.status(500).send('Payment processing failed');
                 });
               }
+
+              // Log audit entry
+              logAuditEntry({
+                timestamp: new Date().toISOString(),
+                transactionId: transactionResult.insertId,
+                accountNumber: accountNumber,
+                accountHolder: req.session.user.name,
+                billerName: bill.Biller_Name,
+                amount: billAmount,
+                paymentMethod: 'Bank Account',
+                referenceNumber: referenceNumber,
+                status: 'Completed'
+              });
 
               // Update session balance
               req.session.user.balance = newBalance;
@@ -752,3 +766,31 @@ app.get('/api/check-ewallet', (req, res) => {
     res.json({ hasEwallet: results.length > 0 });
   });
 });
+
+// helper function
+function logAuditEntry(transactionData) {
+  const today = new Date();
+  const dateString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+  const auditFileName = `audit_${dateString}.csv`;
+  const auditFilePath = path.join(__dirname, 'public', 'audit', auditFileName);
+  
+  // Ensure audit directory exists
+  const auditDir = path.join(__dirname, 'public', 'audit');
+  if (!fs.existsSync(auditDir)) {
+    fs.mkdirSync(auditDir, { recursive: true });
+  }
+  
+  // CSV headers
+  const headers = 'Timestamp,Transaction_ID,Account_Number,Account_Holder,Biller_Name,Amount,Payment_Method,Reference_Number,Status\n';
+  
+  // Check if file exists, if not create it with headers
+  if (!fs.existsSync(auditFilePath)) {
+    fs.writeFileSync(auditFilePath, headers);
+  }
+  
+  // Format the audit entry
+  const auditEntry = `${transactionData.timestamp},${transactionData.transactionId || 'N/A'},${transactionData.accountNumber},${transactionData.accountHolder},${transactionData.billerName},${transactionData.amount},${transactionData.paymentMethod},${transactionData.referenceNumber},${transactionData.status}\n`;
+  
+  // Append to CSV file
+  fs.appendFileSync(auditFilePath, auditEntry);
+}

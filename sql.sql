@@ -91,11 +91,11 @@ CREATE TABLE IF NOT EXISTS `mydb`.`bills` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
-
+-- Insert users with updated balances
 INSERT INTO `user` (`Account_Number`, `First_Name`, `Last_Name`, `Birth_Date`, `Email`, `Password`, `Balance`) VALUES
-	('123456', 'Jack', 'Master', '2012-12-12', 'jackmaster@email.com', 'jackmaster', '10000'),
-	('234567', 'Ivar', 'Ragnarsson', '2011-11-11', 'bonesless@viking.com', 'vikings', '11000'),
-	('345678', 'Caitlyn', 'Kiramman', '2010-10-10', 'meandviforever@piltover.com', 'boomheadshot', '12000');
+	('123456', 'Jack', 'Master', '2012-12-12', 'jackmaster@email.com', 'jackmaster', '5000'),
+	('234567', 'Ivar', 'Ragnarsson', '2011-11-11', 'bonesless@viking.com', 'vikings', '2000'),
+	('345678', 'Caitlyn', 'Kiramman', '2010-10-10', 'meandviforever@piltover.com', 'boomheadshot', '0');
     
 -- Insert billers
 INSERT INTO `mydb`.`biller` (`Biller_Name`, `Biller_Category`) 
@@ -104,13 +104,17 @@ VALUES
 ('Namila Water', 'Water'),
 ('Konverge ICT', 'Telecommunications');
 
--- Insert payment method
+-- Insert payment methods
 INSERT INTO `mydb`.`payment_methods` (`Payment_ID`, `Payment_Method`)
 VALUES (1, 'Debit Card');
 INSERT INTO `mydb`.`payment_methods` (`Payment_ID`, `Payment_Method`)
 VALUES (2, 'E-Wallet');
 
--- Sample transactions (assuming account number 123456 exists)
+-- Register E-wallet for second user (Ivar Ragnarsson)
+INSERT INTO `mydb`.`user_payment_junction` (`Payment_ID`, `Account_Number`)
+VALUES (2, 234567);
+
+-- Sample transactions (keeping some historical data)
 INSERT INTO `mydb`.`transaction` (`Transaction_ID`,`Account_Number`, `Biller_ID`, `Transaction_Timestamp`, `Amount`, `Payment_Method_ID`)VALUES
 	('1', '123456', '1', '2025-05-14 16:00:00', '-14000', '1'),
 	('2', '123456', '2', '2025-05-14 17:00:00', '-4000', '1'),
@@ -121,10 +125,14 @@ INSERT INTO `mydb`.`transaction` (`Transaction_ID`,`Account_Number`, `Biller_ID`
 	('7', '345678', '3', '2025-04-09 14:00:00', '-5000', '1'),
 	('8', '345678', '3', '2025-03-16 14:00:00', '-5000', '1');
 
-  INSERT INTO `mydb`.`bills` (`Account_Number`, `Biller_ID`, `Bill_Amount`, `Due_Date`, `Bill_Reference`)
+-- Insert bills according to specifications
+INSERT INTO `mydb`.`bills` (`Account_Number`, `Biller_ID`, `Bill_Amount`, `Due_Date`, `Bill_Reference`)
 VALUES 
-(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Jeralco'), 2500.00, '2025-06-15', 'ref1'),
-(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Namila Water'), 1800.00, '2025-06-10', 'ref1'),
-(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Konverge ICT'), 3200.00, '2025-06-20', 'ref1'),
-(234567, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Jeralco'), 2800.00, '2025-06-12', 'ref1'),
-(234567, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Namila Water'), 1950.00, '2025-06-08', 'ref1');
+-- First user (Jack Master): One bill for 5000
+(123456, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Jeralco'), 5000.00, '2025-08-15', 'JERALCO-001'),
+
+-- Second user (Ivar Ragnarsson): Two bills for 1000 each
+(234567, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Namila Water'), 1000.00, '2025-08-10', 'WATER-001'),
+(234567, (SELECT Biller_ID FROM biller WHERE Biller_Name = 'Konverge ICT'), 1000.00, '2025-08-20', 'KONVERGE-001');
+
+-- Third user (Caitlyn Kiramman): No bills as specified
