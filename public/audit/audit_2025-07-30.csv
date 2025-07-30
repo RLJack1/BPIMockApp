@@ -1,0 +1,4 @@
+Timestamp,Transaction_ID,Account_Number,Account_Holder,Biller_Name,Amount,Payment_Method,Reference_Number,Status
+2025-07-30T18:34:38.491Z,9,123456,Gold Ship,Jeralco,5000,Bank Account,TXN00478482,Completed
+2025-07-30T18:35:28.716Z,10,234567,Ivar Ragnarsson,Namila Water,1000,Bank Account,TXN00528701,Completed
+2025-07-30T18:39:34.908Z,12,234567,Ivar Ragnarsson,Konverge ICT,2000,E-Wallet,EWT00774893,Completed

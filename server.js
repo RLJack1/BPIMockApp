@@ -734,6 +734,19 @@ app.post('/ewallet-payment', (req, res) => {
                 });
               }
 
+              // ADD THIS: Log audit entry for e-wallet payment
+              logAuditEntry({
+                timestamp: new Date().toISOString(),
+                transactionId: transactionResult.insertId,
+                accountNumber: accountNumber,
+                accountHolder: req.session.user.name,
+                billerName: bill.Biller_Name,
+                amount: billAmount,
+                paymentMethod: 'E-Wallet', // Changed from 'Bank Account' to 'E-Wallet'
+                referenceNumber: referenceNumber,
+                status: 'Completed'
+              });
+
               // Redirect to success page
               res.redirect(`/payment-success?ref=${referenceNumber}&biller=${encodeURIComponent(bill.Biller_Name)}&amount=${billAmount}&method=ewallet`);
             });
